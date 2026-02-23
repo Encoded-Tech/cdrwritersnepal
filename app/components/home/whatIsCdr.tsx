@@ -54,10 +54,20 @@ export default function WhatIsCDR() {
       id="what-is-cdr"
       className="sm:max-w-7xl mx-auto py-24 px-4 md:px-8" 
     >
+
+        <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 60% 35% at 50% 0%, rgba(200,16,46,0.05) 0%, transparent 65%)",
+        }}
+      />
       
       {/* ── 1. Hero explanation block ── */}
       <ScrollReveal variant={fadeDown}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16 items-center">
+       
 
           {/* Left — content */}
           <div>

@@ -73,16 +73,26 @@ function AccentMark({ index }: { index: number }) {
 ══════════════════════════════════════════════════════════════════════ */
 export default function WhyExpert() {
   return (
-    <section
-      className="py-24 md:py-32 px-4 "
-      style={{ background: "#f9f8f6" }}
-    >
+    <section className="relative py-32 px-6" style={{ background: "#f9f8f6" }}>
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200,16,46,0.04) 0%, transparent 100%)",
+          pointerEvents: "none",
+        }}
+      />
+   
       <div className="max-w-7xl mx-auto md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-14 lg:gap-24 items-start">
+           
 
           {/* ── LEFT — authority column ────────────────────────────── */}
           <ScrollReveal variant={fadeDown}>
             <div className="lg:sticky lg:top-28">
+
+              
 
               {/* Eyebrow */}
               <div className="flex items-center gap-3 mb-8">

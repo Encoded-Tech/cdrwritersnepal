@@ -7,12 +7,16 @@ import WhyCDRWritersNepal from "../components/home/whyCdrWritersNepal";
 import SuccessfulOutcomes from "../components/home/successfulOutcomes";
 import ProcessSteps from "../components/home/processSteps";
 import FAQSection from "../components/home/faqSection";
+import TestimonialSection from "../components/home/testimonial/testimonialSection";
+ 
+
+
 
 
 
 
 export const metadata: Metadata = {
-  title: "CDR Writers Nepal — 100% Positive Assessment Guaranteed",
+  title: "CDR Writers Nepal - 100% Positive Assessment Guaranteed",
   description:
     "Expert CDR writing services for Engineers Australia skill assessment. Career Episodes, Summary Statement, CPD — all handled by professional engineers.",
 };
@@ -39,7 +43,7 @@ export default function Home() {
       {/* 7. Successful Outcomes — image gallery + lightbox */}
       <SuccessfulOutcomes />
 
-   
+   <TestimonialSection />
 
       {/* 8. FAQs — accordion */}
       <FAQSection />

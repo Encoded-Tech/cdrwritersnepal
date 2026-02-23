@@ -668,7 +668,7 @@ export default function SuccessfulOutcomes() {
     <>
       <section
         ref={sectionRef}
-        style={{ position: "relative", overflow: "hidden", background: "#f9f8f6", padding: "100px 24px 120px" }}
+        style={{ position: "relative", overflow: "hidden", padding: "100px 24px 120px" }}
       >
         {/* bg accent */}
         <div aria-hidden style={{

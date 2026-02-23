@@ -72,13 +72,13 @@ export default function HeroSection() {
               {/* Status badge */}
               <motion.div
                 variants={{ hidden: { opacity: 0, y: -16 }, visible: { opacity: 1, y: 0, transition: { duration: .5, ease: [0.22,1,0.36,1] } } }}
-                className="inline-flex items-center gap-2.5 mb-7"
+                className="inline-flex items-center gap-2.5 mb-7 mt-2 sm:mt-4 md:mt-8 lg:mt-16 xl:mt-0"
                 style={{
                   background: "rgba(200,16,46,0.12)", border: "1px solid rgba(200,16,46,0.3)",
                   borderRadius: "9999px", padding: "0.45rem 1rem",
                 }}
               >
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                 <span className="text-xs font-bold tracking-widest uppercase text-red-400">
                   Engineers Australia Approved Service
                 </span>
@@ -93,7 +93,7 @@ export default function HeroSection() {
                 100% Positive CDR
                 <br />
                 Assessment.{" "}
-                <span style={{ color: "#c8102e" }}>Guaranteed.</span>
+                <span style={{ color: "#c8102e", }}>Guaranteed.</span>
               </motion.h1>
 
               {/* Typewriter */}
@@ -166,9 +166,9 @@ export default function HeroSection() {
                 variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: .6, delay: .1 } } }}
                 className="flex flex-wrap gap-3"
               >
-                <StatPill value="500+" label="Engineers Helped" />
+                <StatPill value="550+" label="Engineers Helped" />
                 <StatPill value="100%" label="Success Rate" />
-                <StatPill value="4+ Yrs" label="Experience" />
+                <StatPill value="6+ Yrs" label="Experience" />
               </motion.div>
             </motion.div>
 

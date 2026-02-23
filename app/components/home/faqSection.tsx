@@ -118,7 +118,7 @@ export default function FAQSection() {
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200,16,46,0.04) 0%, transparent 65%)",
+          backgroundImage: "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200,16,46,0.04) 0%, transparent 100%)",
           pointerEvents: "none",
         }}
       />

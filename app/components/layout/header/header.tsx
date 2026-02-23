@@ -5,9 +5,9 @@ import {
   useRef,
   useState,
   useCallback,
-  useMemo,
 } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   motion,
   AnimatePresence,
@@ -41,17 +41,15 @@ interface MobileMenuProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const NAV_LINKS: NavLink[] = [
-  { id: "services", label: "Services", href: "#services" },
-  { id: "pricing",  label: "Pricing",  href: "#pricing"  },
-  { id: "process",  label: "Process",  href: "#process"  },
-  { id: "about",    label: "About",    href: "#about"    },
-  { id: "contact",  label: "Contact",  href: "#contact"  },
+  { id: "Home",    label: "Home",    href: "/" },
+  { id: "About",   label: "About",   href: "/about" },
+  { id: "services", label: "Services", href: "/services" },
+  { id: "process", label: "Process", href: "#process" },
+  { id: "contact", label: "Contact", href: "#contact" },
 ];
 
 const SPRING_SMOOTH: Transition = { type: "spring", stiffness: 380, damping: 38, mass: 0.8 };
 const SPRING_SNAPPY: Transition = { type: "spring", stiffness: 520, damping: 42, mass: 0.6 };
-
-// Typed as const tuple so Framer Motion accepts it as BezierDefinition
 const EASING = [0.16, 1, 0.3, 1] as const;
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
@@ -84,59 +82,33 @@ function useScrollBehavior(): { scrolled: boolean; visible: boolean } {
   return { scrolled, visible };
 }
 
-function useActiveSection(ids: string[]): string | null {
-  const [active, setActive] = useState<string | null>(null);
-  const idsKey = ids.join(",");
+function useActiveLink(links: NavLink[]): string | null {
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const observers = new Map<string, IntersectionObserver>();
-    const counts    = new Map<string, number>();
+  const active = links.reduce<NavLink | null>((best, link) => {
+    if (link.href.startsWith("#")) return best;
+    if (pathname === link.href) return link;
+    if (link.href !== "/" && pathname.startsWith(link.href)) {
+      if (!best || link.href.length > best.href.length) return link;
+    }
+    return best;
+  }, null);
 
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          counts.set(id, entry.intersectionRatio);
-          let best: string | null = null;
-          let bestVal = 0;
-          counts.forEach((v, k) => {
-            if (v > bestVal) { bestVal = v; best = k; }
-          });
-          if (best) setActive(best);
-        },
-        { threshold: [0, 0.25, 0.5, 0.75, 1] },
-      );
-
-      obs.observe(el);
-      observers.set(id, obs);
-    });
-
-    return () => observers.forEach((o) => o.disconnect());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idsKey]);
-
-  return active;
+  return active?.id ?? null;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function Logo({ scrolled }: LogoProps) {
-  // ── Replace this src with your actual logo image path ──────────────────────
-
-  const HAS_LOGO = true; // set to true once you add your real image
+  const HAS_LOGO = true;
 
   return (
     <Link href="/" className="flex items-center gap-2.5 select-none outline-none group">
       <div className="relative shrink-0">
-        {/* Ambient glow behind logo */}
         <div
           className="absolute inset-0 rounded-lg blur-md opacity-50 group-hover:opacity-80 transition-opacity duration-300"
           style={{ background: "linear-gradient(135deg,#ef4444,#b91c1c)" }}
         />
-
-        {/* Logo image container — fixed 36×36, swap to your img once ready */}
         <motion.div
           className="relative w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center"
           style={{
@@ -155,29 +127,13 @@ function Logo({ scrolled }: LogoProps) {
               draggable={false}
             />
           ) : (
-            /* Placeholder shown until you set HAS_LOGO = true */
             <div className="flex flex-col items-center justify-center gap-0.5">
-              <svg
-                className="w-4 h-4 opacity-50"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="#ef4444"
-                strokeWidth={1.5}
-              >
+              <svg className="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={1.5}>
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <circle cx="8.5" cy="8.5" r="1.5" />
                 <path strokeLinecap="round" d="M21 15l-5-5L5 21" />
               </svg>
-              <span
-                style={{
-                  fontFamily: "'Syne',sans-serif",
-                  fontSize: "7px",
-                  color: "rgba(239,68,68,0.5)",
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                  lineHeight: 1,
-                }}
-              >
+              <span style={{ fontFamily: "'Syne',sans-serif", fontSize: "7px", color: "rgba(239,68,68,0.5)", letterSpacing: "0.04em", textTransform: "uppercase", lineHeight: 1 }}>
                 logo
               </span>
             </div>
@@ -185,16 +141,10 @@ function Logo({ scrolled }: LogoProps) {
         </motion.div>
       </div>
       <motion.div animate={{ opacity: scrolled ? 0.85 : 1 }} transition={{ duration: 0.2 }}>
-        <span
-          className="text-white font-bold tracking-tight leading-none"
-          style={{ fontFamily: "'Syne',sans-serif", fontSize: "15px", letterSpacing: "-0.01em" }}
-        >
+        <span className="text-white font-bold tracking-tight leading-none" style={{ fontFamily: "'Syne',sans-serif", fontSize: "15px", letterSpacing: "-0.01em" }}>
           CDR Writers
         </span>
-        <span
-          className="block text-green-400 font-semibold leading-none"
-          style={{ fontFamily: "'Syne',sans-serif", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase" }}
-        >
+        <span className="block text-green-400 font-semibold leading-none" style={{ fontFamily: "'Syne',sans-serif", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase" }}>
           Nepal
         </span>
       </motion.div>
@@ -202,53 +152,101 @@ function Logo({ scrolled }: LogoProps) {
   );
 }
 
+// ─── Elegant NavPill with refined active state ────────────────────────────────
+
 function NavPill({ link, isActive, onClick }: NavPillProps) {
   const [hovered, setHovered] = useState<boolean>(false);
 
   return (
-    <a
+    <Link
       href={link.href}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative px-3.5 py-1.5 rounded-lg text-sm font-medium outline-none transition-colors duration-150"
+      className="relative px-4 py-2 rounded-lg text-sm outline-none group"
       style={{
         fontFamily: "'DM Sans',sans-serif",
-        color: isActive ? "#f9fafb" : hovered ? "#e5e7eb" : "#9ca3af",
+        fontWeight: isActive ? 600 : 400,
+        letterSpacing: isActive ? "0.02em" : "0.01em",
+        color: isActive ? "#ffffff" : hovered ? "#d1d5db" : "#6b7280",
         textDecoration: "none",
+        transition: "color 0.2s ease, font-weight 0.2s ease",
       }}
     >
+      {/* Hover bg — subtle, feathered */}
       <AnimatePresence>
-        {(isActive || hovered) && (
+        {hovered && !isActive && (
           <motion.span
-            key={isActive ? "active" : "hover"}
-            layoutId={isActive ? "nav-active-pill" : undefined}
+            key="hover-bg"
+            className="absolute inset-0 rounded-lg"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.18 }}
+            style={{ background: "rgba(255,255,255,0.04)" }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Active background — green glass with glow */}
+      <AnimatePresence>
+        {isActive && (
+          <motion.span
+            key="active-bg"
+            layoutId="nav-active-bg"
             className="absolute inset-0 rounded-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={SPRING_SMOOTH}
             style={{
-              background: isActive
-                ? "linear-gradient(135deg,rgba(22,163,74,0.18) 0%,rgba(22,163,74,0.08) 100%)"
-                : "rgba(255,255,255,0.05)",
-              border: isActive
-                ? "1px solid rgba(34,197,94,0.25)"
-                : "1px solid rgba(255,255,255,0.06)",
-              boxShadow: isActive ? "0 0 12px rgba(34,197,94,0.08)" : "none",
+              background: "linear-gradient(120deg, rgba(16,185,129,0.13) 0%, rgba(5,150,105,0.07) 100%)",
+              border: "1px solid rgba(52,211,153,0.22)",
+              boxShadow: "0 0 18px rgba(16,185,129,0.10), inset 0 1px 0 rgba(255,255,255,0.06)",
             }}
           />
         )}
       </AnimatePresence>
-      <span className="relative z-10">{link.label}</span>
-      {isActive && (
-        <motion.span
-          layoutId="nav-dot"
-          className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-green-400"
-          transition={SPRING_SMOOTH}
-        />
-      )}
-    </a>
+
+      {/* Label */}
+      <span className="relative z-10 flex items-center gap-1.5">
+        {/* Small animated dot before label when active */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.span
+              key="active-dot"
+              initial={{ opacity: 0, scale: 0, width: 0 }}
+              animate={{ opacity: 1, scale: 1, width: "6px" }}
+              exit={{ opacity: 0, scale: 0, width: 0 }}
+              transition={SPRING_SNAPPY}
+              className="inline-block rounded-full shrink-0"
+              style={{
+                width: "6px",
+                height: "6px",
+                background: "radial-gradient(circle, #6ee7b7 0%, #10b981 60%)",
+                boxShadow: "0 0 6px rgba(16,185,129,0.8)",
+              }}
+            />
+          )}
+        </AnimatePresence>
+        {link.label}
+      </span>
+
+      {/* Animated underline — slides in on active */}
+      <motion.span
+        className="absolute bottom-[4px] left-1/2 -translate-x-1/2 h-[1.5px] rounded-full"
+        animate={{
+          width: isActive ? "55%" : hovered ? "30%" : "0%",
+          opacity: isActive ? 1 : hovered ? 0.4 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 400, damping: 38 }}
+        style={{
+          background: isActive
+            ? "linear-gradient(90deg, transparent, #34d399, transparent)"
+            : "rgba(255,255,255,0.3)",
+        }}
+      />
+    </Link>
   );
 }
 
@@ -304,7 +302,6 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             key="backdrop"
             className="fixed inset-0 z-40"
@@ -316,7 +313,6 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
             onClick={onClose}
           />
 
-          {/* Drawer */}
           <motion.div
             key="drawer"
             className="fixed top-0 right-0 bottom-0 z-50 w-[min(340px,90vw)] flex flex-col"
@@ -330,7 +326,6 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
               boxShadow: "-24px 0 64px rgba(0,0,0,0.7)",
             }}
           >
-            {/* Drawer header */}
             <div
               className="flex items-center justify-between px-6 py-5"
               style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
@@ -351,7 +346,6 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
               </motion.button>
             </div>
 
-            {/* Nav links */}
             <nav className="flex-1 px-4 pt-5 pb-4 overflow-y-auto">
               <p
                 className="px-3 mb-3 text-gray-600 font-semibold"
@@ -369,13 +363,13 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.045 + 0.08, ease: EASING, duration: 0.35 }}
                     >
-                      <a
+                      <Link
                         href={link.href}
                         onClick={onClose}
                         className="flex items-center justify-between px-4 py-3 rounded-xl"
                         style={{
-                          background: isActive ? "rgba(22,163,74,0.10)" : "transparent",
-                          border: isActive ? "1px solid rgba(34,197,94,0.18)" : "1px solid transparent",
+                          background: isActive ? "rgba(16,185,129,0.10)" : "transparent",
+                          border: isActive ? "1px solid rgba(52,211,153,0.20)" : "1px solid transparent",
                           textDecoration: "none",
                           transition: "background 0.15s, border-color 0.15s",
                         }}
@@ -386,27 +380,22 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
                           if (!isActive) e.currentTarget.style.background = "transparent";
                         }}
                       >
-                        <span
-                          style={{
-                            fontFamily: "'DM Sans',sans-serif",
-                            fontSize: "15px",
-                            fontWeight: 500,
-                            color: isActive ? "#f9fafb" : "#9ca3af",
-                          }}
-                        >
+                        <span className="flex items-center gap-2.5" style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "15px", fontWeight: isActive ? 600 : 400, color: isActive ? "#f9fafb" : "#9ca3af" }}>
+                          {isActive && (
+                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "radial-gradient(circle, #6ee7b7 0%, #10b981 60%)", boxShadow: "0 0 6px rgba(16,185,129,0.8)", display: "inline-block", flexShrink: 0 }} />
+                          )}
                           {link.label}
                         </span>
-                        <span style={{ color: isActive ? "#22c55e" : "rgba(255,255,255,0.12)", fontSize: "16px" }}>
+                        <span style={{ color: isActive ? "#34d399" : "rgba(255,255,255,0.12)", fontSize: "16px" }}>
                           {isActive ? "●" : "›"}
                         </span>
-                      </a>
+                      </Link>
                     </motion.li>
                   );
                 })}
               </ul>
             </nav>
 
-            {/* CTA block */}
             <motion.div
               className="px-4 pb-8"
               initial={{ opacity: 0, y: 16 }}
@@ -426,7 +415,7 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
                 <p className="text-gray-500 mb-3" style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "12px", lineHeight: 1.5 }}>
                   Get a free CDR review. Limited slots.
                 </p>
-                <a
+                <Link
                   href="/contact"
                   onClick={onClose}
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-semibold text-sm"
@@ -442,7 +431,7 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
-                </a>
+                </Link>
               </div>
 
               <div className="flex gap-2">
@@ -450,7 +439,7 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
                   { label: "Email",    href: "mailto:cdrwritersnepal@gmail.com", icon: "✉" },
                   { label: "WhatsApp", href: "https://wa.me/9779840955770",      icon: "💬" },
                 ].map((c) => (
-                  <a
+                  <Link
                     key={c.label}
                     href={c.href}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-gray-400 text-xs font-medium"
@@ -463,7 +452,7 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
                   >
                     <span>{c.icon}</span>
                     {c.label}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </motion.div>
@@ -478,8 +467,7 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
 
 export default function CDRHeader() {
   const { scrolled, visible }   = useScrollBehavior();
-  const sectionIds              = useMemo<string[]>(() => NAV_LINKS.map((l) => l.id), []);
-  const activeSection           = useActiveSection(sectionIds);
+  const activeSection           = useActiveLink(NAV_LINKS);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
   const closeMenu  = useCallback((): void => setMenuOpen(false), []);
@@ -493,20 +481,23 @@ export default function CDRHeader() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
 
-        /* Darker base — not scrolled */
         .header-glass {
           background: rgba(6,9,7,0.82);
           backdrop-filter: blur(20px) saturate(160%);
           -webkit-backdrop-filter: blur(20px) saturate(160%);
         }
-
-        /* Darker — scrolled state */
         .header-glass-scrolled {
           background: rgba(4,7,5,0.94);
           backdrop-filter: blur(28px) saturate(190%);
           -webkit-backdrop-filter: blur(28px) saturate(190%);
+        }
+
+        /* Elegant character-by-character shimmer on active nav text */
+        @keyframes activeShimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position: 200% center; }
         }
       `}</style>
 
@@ -535,13 +526,13 @@ export default function CDRHeader() {
                   : "px-4 sm:px-6 lg:px-10 xl:px-16 py-4 sm:py-5"
               }`}
             >
-              {/* Logo — reserved container prevents layout shift */}
+              {/* Logo */}
               <div className="flex items-center shrink-0 min-w-[160px] lg:min-w-[200px]">
                 <Logo scrolled={scrolled} />
               </div>
 
               {/* Desktop nav */}
-              <nav className="hidden lg:flex items-center gap-1">
+              <nav className="hidden lg:flex items-center gap-0.5">
                 {NAV_LINKS.map((link) => (
                   <NavPill
                     key={link.id}

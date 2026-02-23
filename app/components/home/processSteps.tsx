@@ -396,6 +396,16 @@ export default function ProcessSteps() {
 
   return (
     <section ref={sectionRef} style={{ position: "relative", overflow: "hidden", background: "#f9f8f6", padding: "100px 16px 120px" }}>
+            <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(200,16,46,0.04) 0%, transparent 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
       <div ref={scanSentinelRef} aria-hidden style={{ position: "absolute", top: 0, left: 0, width: 1, height: 1, pointerEvents: "none" }} />
       <ScanLine trigger={scanTriggered} />
       <Particles />
