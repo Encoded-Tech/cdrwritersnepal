@@ -1,415 +1,476 @@
 "use client";
 
-/**
- * JourneySection
- *
- * FIXES IN THIS VERSION:
- * ─────────────────────────────────────────────────────────
- * 1. Full section visible — rows laid out absolutely with
- *    translateY offsets so all content fits in 100vh panel
- * 2. Red/green light — replaces amber/yellow
- * 3. Fast ignition — glow starts at p=0.02 (instant on entry)
- * 4. BG returns to black — rawP drives bg opacity so scroll
- *    up restores darkness (light is NOT forward-locked now,
- *    only row reveals are forward-locked)
- * 5. Bulb goes back up on scroll up (rawP driven)
- * 6. True 1:1 sync — zero springs on master
- *
- * SCROLL MAP  p = scrollYProgress 0→1 over 600vh
- * ─────────────────────────────────────────────────────────
- *  0.00         Black. Bulb at y:-200, opacity:0
- *  0.00–0.10    Bulb drops in. Cord extends.
- *  0.05–0.15    Red/green glow ramps on FAST
- *  0.05–0.85    Room light expands from bulb
- *  0.15–0.25    Row 1 reveals
- *  0.24–0.34    Row 2
- *  0.33–0.43    Row 3
- *  0.42–0.52    Row 4
- *  0.51–0.61    Row 5
- *  0.60–0.70    Row 6
- *
- * SCROLL UP:
- *  - Bulb rises back above frame
- *  - Glow dims → room goes black
- *  - Rows stay revealed (per-row forward lock)
- */
-
-import { useRef, memo } from "react";
+import { useRef } from "react";
 import {
   motion,
   useScroll,
   useTransform,
-  useMotionValue,
-  useMotionValueEvent,
-  type MotionValue,
+  useInView,
+  MotionValue,
 } from "framer-motion";
 
-// ─── Config ───────────────────────────────────────────────────────────────────
-// Switch "red" | "green"
-const LIGHT_MODE: "red" | "green" = "red";
+// ─── DATA ────────────────────────────────────────────────────────────────────
 
-const LIGHT = {
-  red: {
-    core:   "rgba(255,40,40,1)",
-    mid:    "rgba(220,20,20,0.85)",
-    outer:  "rgba(180,10,10,0.3)",
-    halo1:  "rgba(255,60,60,0.22)",
-    halo2:  "rgba(200,15,15,0.08)",
-    corona: "rgba(255,80,80,0.92)",
-    floor:  "rgba(180,10,10,0.07)",
-    text:   ["rgba(255,140,140,0.95)", "rgba(255,100,100,0.60)", "rgba(255,80,80,0.38)"],
-    tag:    "rgba(255,120,120,0.50)",
-    year:   "rgba(255,80,80,0.06)",
-    border: "rgba(255,60,60,0.15)",
-    grid:   "rgba(255,60,60,1)",
-    svgA:   "rgba(255,80,80,",
-    svgS:   "rgba(255,60,60,",
-    gFill:  ["#FF4444","#FF2020","#CC0000","#880000"],
-  },
-  green: {
-    core:   "rgba(40,255,120,1)",
-    mid:    "rgba(20,220,90,0.85)",
-    outer:  "rgba(10,180,60,0.3)",
-    halo1:  "rgba(40,255,110,0.22)",
-    halo2:  "rgba(10,180,50,0.08)",
-    corona: "rgba(60,255,130,0.92)",
-    floor:  "rgba(10,160,50,0.07)",
-    text:   ["rgba(140,255,180,0.95)", "rgba(100,255,150,0.60)", "rgba(80,220,120,0.38)"],
-    tag:    "rgba(80,255,140,0.50)",
-    year:   "rgba(40,255,100,0.06)",
-    border: "rgba(40,255,100,0.15)",
-    grid:   "rgba(40,220,100,1)",
-    svgA:   "rgba(80,255,120,",
-    svgS:   "rgba(60,220,100,",
-    gFill:  ["#22FF88","#10CC60","#088040","#044020"],
-  },
-} as const;
-
-const L = LIGHT[LIGHT_MODE];
-
-const ROWS = [
-  { year:"2020", tag:"Origin",     title:"The Beginning",            rs:0.15, re:0.25, body:"Foundation laid in solitude. A single consultant working independently — building competence one engagement at a time. No team. No infrastructure. Only discipline." },
-  { year:"2021", tag:"Expansion",  title:"The First Team",           rs:0.24, re:0.34, body:"Three individuals committed to a shared direction. The work became collaborative — each contributing a distinct discipline to what was becoming a coherent practice." },
-  { year:"2022", tag:"Mastery",    title:"Understanding the System", rs:0.33, re:0.43, body:"ACS and VETASSESS frameworks were studied with rigour. Requirements tested against real cases, refined through failure, commanded with confidence." },
-  { year:"2024", tag:"Operations", title:"EOI Lodgement",            rs:0.42, re:0.52, body:"EOI submissions became a structured service. Documentation formalised. Practice moved from reactive consulting to proactive, repeatable delivery at scale." },
-  { year:"2025", tag:"Launch",     title:"Official Registration",    rs:0.51, re:0.61, body:"Encoded Tech formally incorporated. CDR Writers Nepal launched as a defined product built for engineers pursuing skilled migration to Australia." },
-  { year:"2026", tag:"Excellence", title:"Growth & Mastery",         rs:0.60, re:0.70, body:"Focus narrowed to what matters: engineering excellence, assessment authority, sustainable growth. Precision in every document." },
+const TIMELINE = [
+  { year: "2020", title: "Freelancing Phase",           description: "The founder worked independently with individual clients, building technical skills, trust, and real-world CDR experience from the ground up." },
+  { year: "2021", title: "Research & Strategy",         description: "Focused on researching international markets, agents, and systems required to scale client acquisition and establish repeatable workflows." },
+  { year: "2022", title: "Foundation of the Team",      description: "Built the first small team and began structured collaboration with agents, introducing quality processes for CDR documentation." },
+  { year: "2023", title: "Agent Client Expansion",      description: "Started delivering consistent professional project results directly for agents, earning trust through reliability and EA-aligned outputs." },
+  { year: "2024", title: "Team Expansion",              description: "Expanded to a team of 6 specialists and successfully delivered numerous professional client projects across engineering disciplines." },
+  { year: "2025", title: "Official Company Formation",  description: "Encoded Tech was officially established as a company. CDR Writers Nepal was launched as a dedicated product and service brand." },
+  { year: "2026", title: "Scaling & Market Expansion",  description: "Focused on marketing, research, and expansion strategies targeting ACS, EA, VETASSESS, and global technical migration clients." },
 ];
 
-// ─── Forward lock ─────────────────────────────────────────────────────────────
-function useForwardLock(src: MotionValue<number>): MotionValue<number> {
-  const mv = useMotionValue(0);
-  useMotionValueEvent(src, "change", (v) => {
-    if (v > mv.get()) mv.set(v);
-  });
-  return mv;
+// ─── GRAIN ───────────────────────────────────────────────────────────────────
+
+const GRAIN_SVG = encodeURIComponent(
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#g)"/>
+  </svg>`
+);
+
+// ─── LIGHT BULB ──────────────────────────────────────────────────────────────
+
+function LightBulb({ glowIntensity }: { glowIntensity: MotionValue<number> }) {
+  const bulbFill = useTransform(
+    glowIntensity,
+    [0,         0.15,      0.40,      0.65,      0.92,      1      ],
+    ["#060606", "#1e0000", "#500000", "#7a0000", "#003d00", "#00bb00"]
+  );
+  const filamentOp = useTransform(glowIntensity, [0.08, 0.28], [0, 1], { clamp: true });
+  const filamentCol = useTransform(
+    glowIntensity,
+    [0.10, 0.30, 0.70, 0.92, 1],
+    ["#550000", "#cc0000", "#ff1100", "#00aa00", "#aaffaa"]
+  );
+  const coreGlow = useTransform(
+    glowIntensity,
+    [0, 0.15, 0.55, 0.90, 1],
+    ["rgba(0,0,0,0)", "rgba(160,0,0,0.28)", "rgba(210,0,0,0.75)", "rgba(0,160,20,0.88)", "rgba(0,210,40,0.96)"]
+  );
+  const sheenOp = useTransform(glowIntensity, [0, 0.6, 1], [0.01, 0.06, 0.18], { clamp: true });
+
+  // Three halo rings
+  const h1Size = useTransform(glowIntensity, [0, 1], [10, 180], { clamp: true });
+  const h1Op   = useTransform(glowIntensity, [0, 0.12, 0.95, 1], [0, 1, 1, 0.80], { clamp: true });
+  const h1Col  = useTransform(glowIntensity, [0, 0.18, 0.65, 0.92, 1],
+    ["rgba(0,0,0,0)", "rgba(200,0,0,0.88)", "rgba(230,0,0,0.80)", "rgba(0,195,0,0.72)", "rgba(0,230,50,0.65)"]);
+
+  const h2Size = useTransform(glowIntensity, [0, 1], [20, 420], { clamp: true });
+  const h2Op   = useTransform(glowIntensity, [0, 0.14, 0.90, 1], [0, 0.65, 0.70, 0.55], { clamp: true });
+  const h2Col  = useTransform(glowIntensity, [0, 0.20, 0.65, 0.92, 1],
+    ["rgba(0,0,0,0)", "rgba(180,0,0,0.45)", "rgba(210,0,0,0.38)", "rgba(0,165,0,0.32)", "rgba(0,200,35,0.25)"]);
+
+  const h3Size = useTransform(glowIntensity, [0, 1], [40, 900], { clamp: true });
+  const h3Op   = useTransform(glowIntensity, [0, 0.22, 0.88, 1], [0, 0.28, 0.36, 0.28], { clamp: true });
+  const h3Col  = useTransform(glowIntensity, [0, 0.24, 0.68, 0.93, 1],
+    ["rgba(0,0,0,0)", "rgba(160,0,0,0.20)", "rgba(190,0,0,0.16)", "rgba(0,140,10,0.14)", "rgba(0,170,22,0.11)"]);
+
+  return (
+    <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", isolation: "isolate" }}>
+      {/* Halo 3 — outermost */}
+      <motion.div style={{ position: "absolute", borderRadius: "50%", pointerEvents: "none",
+        width: h3Size, height: h3Size, top: "54%", left: "50%", x: "-50%", y: "-50%",
+        background: h3Col, filter: "blur(70px)", opacity: h3Op }} />
+      {/* Halo 2 */}
+      <motion.div style={{ position: "absolute", borderRadius: "50%", pointerEvents: "none",
+        width: h2Size, height: h2Size, top: "54%", left: "50%", x: "-50%", y: "-50%",
+        background: h2Col, filter: "blur(42px)", opacity: h2Op }} />
+      {/* Halo 1 — tightest */}
+      <motion.div style={{ position: "absolute", borderRadius: "50%", pointerEvents: "none",
+        width: h1Size, height: h1Size, top: "54%", left: "50%", x: "-50%", y: "-50%",
+        background: h1Col, filter: "blur(10px)", opacity: h1Op }} />
+
+      <svg width="72" height="190" viewBox="0 0 72 200" fill="none"
+        xmlns="http://www.w3.org/2000/svg" style={{ position: "relative", zIndex: 2, flexShrink: 0 }}>
+        {/* Globe */}
+        <motion.path
+          d="M36 70 C18 70,6 84,6 102 C6 120,18 136,29 140 L29 150 Q29 154 33 154 L39 154 Q43 154 43 150 L43 140 C54 136,66 120,66 102 C66 84,54 70,36 70 Z"
+          style={{ fill: bulbFill }} stroke="#2e2e2e" strokeWidth="1" />
+        {/* Cap */}
+        <rect x="26" y="50" width="20" height="21" rx="3" fill="#2e2e2e" />
+        <rect x="24" y="57" width="24" height="7" rx="2" fill="#3a3a3a" />
+        {/* Sheen */}
+        <motion.ellipse cx="22" cy="88" rx="6" ry="12" fill="white" style={{ opacity: sheenOp }} />
+        {/* Base rings */}
+        <rect x="29" y="150" width="14" height="5" rx="1" fill="#444" />
+        <rect x="30" y="155" width="12" height="4" rx="1" fill="#383838" />
+        <rect x="31" y="159" width="10" height="4" rx="1" fill="#2e2e2e" />
+        {/* Filament left */}
+        <motion.path d="M32 140 L30 128 L34 116 L30 104 L32 92"
+          stroke={filamentCol as unknown as string} strokeWidth="1.4"
+          strokeLinecap="round" strokeLinejoin="round" fill="none" style={{ opacity: filamentOp }} />
+        {/* Filament right */}
+        <motion.path d="M40 140 L42 128 L38 116 L42 104 L40 92"
+          stroke={filamentCol as unknown as string} strokeWidth="1.4"
+          strokeLinecap="round" strokeLinejoin="round" fill="none" style={{ opacity: filamentOp }} />
+        {/* Bridge */}
+        <motion.path d="M32 92 Q34 87 36 88 Q38 89 40 92"
+          stroke={filamentCol as unknown as string} strokeWidth="1.4"
+          strokeLinecap="round" fill="none" style={{ opacity: filamentOp }} />
+        {/* Core glow */}
+        <motion.ellipse cx="36" cy="112" rx="10" ry="14" style={{ fill: coreGlow }} />
+      </svg>
+    </div>
+  );
 }
 
-// ─── Bulb ──────────────────────────────────────────────────────────────────────
-const Bulb = memo(function Bulb({ p }: { p: MotionValue<number> }) {
-  const y    = useTransform(p, [0.00, 0.10], [-200, 0]);
-  const op   = useTransform(p, [0.00, 0.04], [0,    1]);
-  const cordSY = useTransform(p, [0.01, 0.10], [0, 1]);
-  const glow   = useTransform(p, [0.05, 0.16], [0, 1]);
+// ─── SPARKS ───────────────────────────────────────────────────────────────────
 
-  const haloOp = useTransform(glow, [0,0.4,1], [0, 0.52, 0.88]);
-  const haloSc = useTransform(glow, [0, 1], [0.02, 1.0]);
-  const corOp  = useTransform(glow, [0, 1], [0, 1]);
-  const ambOp  = useTransform(glow, [0, 1], [0, 0.65]);
-  const ambSc  = useTransform(glow, [0, 1], [0.01, 1.3]);
-
-  const svgF = useTransform(glow, (g) => {
-    if (g < 0.01) return "none";
-    return `drop-shadow(0 0 ${(8+g*36).toFixed(1)}px ${L.svgA}${(0.15+g*0.78).toFixed(2)}))`;
-  });
-
+function Sparks({ glowIntensity }: { glowIntensity: MotionValue<number> }) {
+  const op = useTransform(glowIntensity, [0.35, 0.60, 0.90, 1], [0, 0.7, 0.9, 0.55], { clamp: true });
+  const pts = [
+    { dx: -20, dy: 14, d: 0.0 }, { dx: 22, dy: 18, d: 0.35 },
+    { dx: -30, dy: 6,  d: 0.7 }, { dx: 28, dy: 26, d: 1.05 },
+    { dx: -12, dy: 34, d: 1.4 }, { dx: 16, dy: -2, d: 1.75 },
+  ];
   return (
-    <motion.div style={{
-      display:"flex", flexDirection:"column", alignItems:"center",
-      y, opacity:op, flexShrink:0, position:"relative",
-    }}>
-      <motion.div style={{
-        width:1, height:80,
-        background:`linear-gradient(to bottom, ${L.svgA}0.04), ${L.svgA}0.38))`,
-        transformOrigin:"top center", scaleY:cordSY, flexShrink:0,
-      }}/>
-      <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center" }}>
-        {/* Ambient spread */}
-        <motion.div style={{
-          position:"absolute", width:460, height:460, borderRadius:"50%",
-          background:`radial-gradient(circle, ${L.halo2.replace("0.08","0.12")} 0%, ${L.halo2} 40%, transparent 68%)`,
-          opacity:ambOp, scale:ambSc, pointerEvents:"none",
-        }}/>
-        {/* Mid halo */}
-        <motion.div style={{
-          position:"absolute", width:260, height:260, borderRadius:"50%",
-          background:`radial-gradient(circle, ${L.halo1} 0%, ${L.halo2} 44%, transparent 70%)`,
-          opacity:haloOp, scale:haloSc, pointerEvents:"none",
-        }}/>
-        {/* Inner corona */}
-        <motion.div style={{
-          position:"absolute", width:84, height:84, borderRadius:"50%",
-          background:`radial-gradient(circle, ${L.corona} 0%, ${L.svgA}0.55) 46%, transparent 74%)`,
-          opacity:corOp, pointerEvents:"none",
-        }}/>
-        {/* Glass SVG */}
-        <motion.svg viewBox="0 0 64 98" width={50} height={78}
-          aria-hidden style={{ position:"relative", zIndex:2, filter:svgF }}>
-          <defs>
-            <radialGradient id="bfill" cx="50%" cy="40%" r="56%">
-              <stop offset="0%"   stopColor={L.gFill[0]} stopOpacity="1.00"/>
-              <stop offset="25%"  stopColor={L.gFill[1]} stopOpacity="0.90"/>
-              <stop offset="62%"  stopColor={L.gFill[2]} stopOpacity="0.60"/>
-              <stop offset="100%" stopColor={L.gFill[3]} stopOpacity="0.18"/>
-            </radialGradient>
-            <radialGradient id="bspec" cx="30%" cy="24%" r="50%">
-              <stop offset="0%"   stopColor="#FFFFFF" stopOpacity="0.22"/>
-              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.00"/>
-            </radialGradient>
-            <filter id="bblur"><feGaussianBlur stdDeviation="0.5"/></filter>
-          </defs>
-          <path d="M32 6C12 6 4 22 4 36c0 17 13 27 18 36h20c5-9 18-19 18-36C60 22 52 6 32 6z"
-            fill="url(#bfill)" stroke={`${L.svgS}0.24)`} strokeWidth="0.6"/>
-          <path d="M32 6C12 6 4 22 4 36c0 17 13 27 18 36h20c5-9 18-19 18-36C60 22 52 6 32 6z"
-            fill="url(#bspec)"/>
-          <ellipse cx="21" cy="20" rx="4" ry="8" fill="rgba(255,255,255,0.18)" filter="url(#bblur)"/>
-          <g stroke={`${L.svgA}0.72)`} strokeWidth="0.9" fill="none" strokeLinecap="round">
-            <path d="M27 54L27 46Q32 41 37 46L37 39Q32 34 27 39L27 32"/>
-          </g>
-          <rect x="22" y="72" width="20" height="5"    rx="2"   fill="rgba(80,80,80,0.72)"/>
-          <rect x="23" y="77" width="18" height="4.5"  rx="1.5" fill="rgba(60,60,60,0.62)"/>
-          <rect x="24" y="81.5" width="16" height="4"  rx="1.5" fill="rgba(45,45,45,0.55)"/>
-          <rect x="25" y="85.5" width="14" height="4"  rx="1.5" fill="rgba(32,32,32,0.50)"/>
-        </motion.svg>
-      </div>
+    <motion.div style={{ position: "absolute", top: "100%", left: "50%", x: "-50%", pointerEvents: "none", opacity: op }}>
+      {pts.map((p, i) => (
+        <motion.div key={i} style={{
+          position: "absolute", width: 2.5, height: 2.5, borderRadius: "50%",
+          background: "radial-gradient(circle, #ccff88, #44cc10)",
+          boxShadow: "0 0 4px 1px rgba(100,255,40,0.7)",
+          left: p.dx, top: p.dy,
+        }}
+          animate={{ y: [0, -14, 0], opacity: [0.4, 1, 0.3], scale: [0.8, 1.4, 0.7] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: p.d }}
+        />
+      ))}
     </motion.div>
   );
-});
+}
 
-// ─── Room Light Layers ────────────────────────────────────────────────────────
-const RoomLight = memo(function RoomLight({ p }: { p: MotionValue<number> }) {
-  // Light tracks rawP so it dims when scrolling back up
-  const intensity = useTransform(p, [0.05, 0.18, 0.80, 0.95], [0, 1, 0.85, 0.70]);
-  const radius    = useTransform(p, [0.05, 0.20, 0.75], ["0vw", "30vw", "160vw"]);
+// ─── TIMELINE CARD ────────────────────────────────────────────────────────────
 
-  const lightBg = useTransform(radius, (r) =>
-    `radial-gradient(circle ${r} at 50% 240px, ${L.core.replace("1)","0.20)")} 0%, ${L.mid.replace("0.85)","0.08)")} 28%, ${L.outer.replace("0.3)","0.025)")} 54%, transparent 68%)`
-  );
-
-  const floorOp = useTransform(intensity, [0, 1], [0, 0.5]);
-
-  return (
-    <>
-      <motion.div aria-hidden style={{
-        position:"absolute", inset:0,
-        background:lightBg,
-        opacity:intensity,
-        mixBlendMode:"screen",
-        zIndex:1, pointerEvents:"none",
-      }}/>
-      <motion.div aria-hidden style={{
-        position:"absolute", bottom:0, left:0, right:0, height:"50%",
-        background:`radial-gradient(ellipse 90% 100% at 50% 100%, ${L.floor} 0%, transparent 72%)`,
-        opacity:floorOp,
-        zIndex:2, pointerEvents:"none",
-      }}/>
-    </>
-  );
-});
-
-// ─── Heading ──────────────────────────────────────────────────────────────────
-const Heading = memo(function Heading({ p }: { p: MotionValue<number> }) {
-  const op  = useTransform(p, [0.05, 0.16], [0, 1]);
-  const y   = useTransform(p, [0.05, 0.16], [12, 0]);
-  const tc  = useTransform(p, [0.05, 0.20], ["rgba(255,255,255,0.0)", L.text[0]]);
-  const sc  = useTransform(p, [0.05, 0.20], ["rgba(255,255,255,0.0)", L.tag]);
-
-  return (
-    <motion.div style={{ opacity:op, y, textAlign:"center", marginTop:"clamp(10px,1.6vh,18px)" }}>
-      <motion.p style={{
-        fontFamily:"monospace", fontSize:"0.55rem",
-        letterSpacing:"0.28em", textTransform:"uppercase",
-        color:sc, fontWeight:500, margin:"0 0 9px",
-      }}>Encoded Tech · CDR Writers Nepal</motion.p>
-      <motion.h2 style={{
-        fontFamily:"'Cormorant Garamond',Georgia,serif",
-        fontSize:"clamp(20px,2.8vw,38px)",
-        fontWeight:700, letterSpacing:"-0.028em",
-        lineHeight:1.06, color:tc, margin:0,
-      }}>Our Journey</motion.h2>
-      <motion.div style={{
-        width:26, height:1, margin:"10px auto 0",
-        backgroundColor:sc,
-      }}/>
-    </motion.div>
-  );
-});
-
-// ─── Row ──────────────────────────────────────────────────────────────────────
-const Row = memo(function Row({
-  row, idx, p,
-}: { row:typeof ROWS[0]; idx:number; p:MotionValue<number> }) {
-  const isEven = idx % 2 === 0;
-
-  const rawOp = useTransform(p, [row.rs, row.re], [0, 1]);
-  const rawY  = useTransform(p, [row.rs, row.re], [46, 0]);
-
-  // Row opacity forward-locked — revealed rows stay visible
-  const op = useForwardLock(rawOp);
-
+function CardContent({ entry, align }: { entry: typeof TIMELINE[0]; align: "left" | "right" }) {
   return (
     <div style={{
-      paddingTop:   idx===0 ? "clamp(32px,5.5vh,68px)" : "clamp(28px,5vh,72px)",
-      paddingLeft:  "clamp(16px,5vw,100px)",
-      paddingRight: "clamp(16px,5vw,100px)",
+      background: "rgba(255,255,255,0.04)",
+      border: "1px solid rgba(140,255,70,0.10)",
+      borderRadius: 14,
+      padding: "18px 22px",
+      backdropFilter: "blur(6px)",
+      boxShadow: "0 4px 28px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04)",
+      textAlign: align,
+      maxWidth: 340,
+      width: "100%",
     }}>
-      <div className="jd" style={{
-        maxWidth:1020, margin:"0 auto", display:"flex",
-        flexDirection:isEven ? "row" : "row-reverse",
-        gap:"clamp(20px,3.5vw,56px)", alignItems:"center",
-      }}>
-        {/* Text */}
-        <motion.div style={{ flex:1, minWidth:0, opacity:op, y:rawY }}>
-          <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:11 }}>
-            <span style={{ display:"block", width:14, height:1, backgroundColor:L.tag, flexShrink:0 }}/>
-            <span style={{
-              fontFamily:"monospace", fontSize:"0.56rem",
-              fontWeight:600, letterSpacing:"0.22em",
-              textTransform:"uppercase", color:L.tag,
-            }}>{row.tag}</span>
-          </div>
-          <div style={{ position:"relative", marginBottom:6 }}>
-            <span style={{
-              fontFamily:"'Cormorant Garamond',Georgia,serif",
-              fontSize:"clamp(46px,7vw,88px)",
-              fontWeight:700, lineHeight:0.88,
-              letterSpacing:"-0.05em",
-              color:L.year, display:"block",
-              userSelect:"none", pointerEvents:"none",
-            }}>{row.year}</span>
-            <h3 style={{
-              fontFamily:"'Cormorant Garamond',Georgia,serif",
-              fontSize:"clamp(15px,1.9vw,22px)",
-              fontWeight:700, letterSpacing:"-0.02em",
-              lineHeight:1.14, color:L.text[0],
-              margin:0, position:"absolute", bottom:2, left:1,
-            }}>{row.title}</h3>
-          </div>
-          <p style={{
-            fontFamily:"system-ui,sans-serif",
-            fontSize:"clamp(11.5px,1.25vw,13.5px)",
-            lineHeight:1.80, color:L.text[1],
-            fontWeight:400, margin:"12px 0 0", maxWidth:390,
-          }}>{row.body}</p>
-          <div style={{ marginTop:18, width:26, height:1, backgroundColor:L.tag, opacity:0.38 }}/>
-        </motion.div>
+      <span style={{
+        display: "inline-block", marginBottom: 8, padding: "3px 10px",
+        borderRadius: 4, fontSize: "0.65rem", fontFamily: "monospace",
+        fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const,
+        background: "rgba(140,255,70,0.08)", border: "1px solid rgba(140,255,70,0.22)",
+        color: "rgba(140,255,70,0.92)",
+      }}>{entry.year}</span>
+      <h3 style={{
+        fontFamily: "'Georgia', serif", fontSize: "1.05rem", fontWeight: 600,
+        color: "rgba(255,255,255,0.92)", letterSpacing: "-0.018em",
+        lineHeight: 1.35, marginBottom: 8,
+      }}>{entry.title}</h3>
+      <p style={{
+        fontFamily: "'Georgia', serif", fontSize: "0.82rem",
+        color: "rgba(180,200,170,0.72)", lineHeight: 1.72, margin: 0,
+      }}>{entry.description}</p>
+    </div>
+  );
+}
 
-        {/* Visual */}
-        <motion.div style={{
-          flex:1, minWidth:0,
-          minHeight:"clamp(110px,17vw,220px)",
-          borderRadius:2, position:"relative", overflow:"hidden",
-          border:`1px solid ${L.border}`,
-          opacity:op, y:rawY,
-        }}>
-          <svg aria-hidden width="100%" height="100%"
-            style={{ position:"absolute", inset:0, opacity:0.07 }}
-            preserveAspectRatio="none">
-            <defs>
-              <pattern id={`gp${idx}`} width="26" height="26" patternUnits="userSpaceOnUse">
-                <path d="M26 0L0 0 0 26" fill="none" stroke={L.grid} strokeWidth="0.38"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill={`url(#gp${idx})`}/>
-          </svg>
-          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-            <span style={{
-              fontFamily:"'Cormorant Garamond',Georgia,serif",
-              fontSize:"clamp(38px,5.5vw,76px)",
-              fontWeight:700, letterSpacing:"-0.06em",
-              color:L.year, lineHeight:1, userSelect:"none",
-            }}>{row.year}</span>
-          </div>
-          <div style={{
-            position:"absolute", top:11,
-            ...(isEven ? { right:11 } : { left:11 }),
-            width:14, height:14,
-            borderTop:`1px solid ${L.tag}`,
-            ...(isEven ? { borderRight:`1px solid ${L.tag}` } : { borderLeft:`1px solid ${L.tag}` }),
-            opacity:0.48,
-          }}/>
+function TimelineCard({ entry, index, isLast }: { entry: typeof TIMELINE[0]; index: number; isLast: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px 0px" });
+  const isLeft = index % 2 === 0;
+
+  return (
+    <div ref={ref} style={{ width: "100%" }}>
+      {/* Desktop: 3-col grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 40px 1fr", width: "100%", alignItems: "start" }}
+        className="hidden md:grid">
+        {/* Left col */}
+        <motion.div
+          initial={{ opacity: 0, x: -32, y: 8 }}
+          animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+          style={{ paddingRight: 28, paddingTop: 4, display: "flex", justifyContent: "flex-end" }}
+        >
+          {isLeft && <CardContent entry={entry} align="right" />}
+        </motion.div>
+        {/* Center dot + connector */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={inView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.4, ease: "backOut", delay: 0.18 }}
+            style={{
+              width: 12, height: 12, borderRadius: "50%", flexShrink: 0, marginTop: 8,
+              background: "radial-gradient(circle, #c8ff80 20%, #44cc10 80%)",
+              boxShadow: "0 0 12px 4px rgba(100,255,40,0.45)",
+            }}
+          />
+          {!isLast && (
+            <div style={{
+              width: 1, flex: 1, minHeight: 60, marginTop: 4,
+              background: "linear-gradient(to bottom, rgba(100,220,50,0.22), rgba(100,220,50,0.05))",
+            }} />
+          )}
+        </div>
+        {/* Right col */}
+        <motion.div
+          initial={{ opacity: 0, x: 32, y: 8 }}
+          animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+          style={{ paddingLeft: 28, paddingTop: 4 }}
+        >
+          {!isLeft && <CardContent entry={entry} align="left" />}
         </motion.div>
       </div>
 
-      {/* Mobile */}
-      <div className="jm" style={{ display:"none", flexDirection:"column" as const, gap:14, maxWidth:470, margin:"0 auto" }}>
-        <motion.div style={{ opacity:op, y:rawY }}>
-          <p style={{ fontFamily:"monospace", fontSize:"0.54rem", letterSpacing:"0.2em", textTransform:"uppercase", color:L.tag, margin:"0 0 8px" }}>{row.tag}</p>
-          <h3 style={{ fontFamily:"'Cormorant Garamond',Georgia,serif", fontSize:"clamp(18px,5vw,26px)", fontWeight:700, color:L.text[0], margin:"0 0 8px" }}>{row.title}</h3>
-          <p style={{ fontFamily:"system-ui,sans-serif", fontSize:"13px", lineHeight:1.76, color:L.text[1], margin:0 }}>{row.body}</p>
+      {/* Mobile: stacked */}
+      <div className="md:hidden flex gap-4 items-start w-full">
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 6, flexShrink: 0 }}>
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={inView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.4, ease: "backOut", delay: 0.12 }}
+            style={{
+              width: 10, height: 10, borderRadius: "50%",
+              background: "radial-gradient(circle, #c8ff80 20%, #44cc10 80%)",
+              boxShadow: "0 0 10px 3px rgba(100,255,40,0.40)",
+            }}
+          />
+          {!isLast && (
+            <div style={{
+              width: 1, height: 40, marginTop: 4,
+              background: "linear-gradient(to bottom, rgba(100,220,50,0.22), rgba(100,220,50,0.04))",
+            }} />
+          )}
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.06 }}
+          style={{ flex: 1 }}
+        >
+          <CardContent entry={entry} align="left" />
         </motion.div>
       </div>
     </div>
   );
-});
+}
 
-// ─── Root ──────────────────────────────────────────────────────────────────────
-export default function JourneySection() {
-  const outerRef = useRef<HTMLDivElement>(null);
+// ─── MAIN ────────────────────────────────────────────────────────────────────
 
-  const { scrollYProgress } = useScroll({
-    target: outerRef,
-    offset: ["start start", "end end"],
+export default function OurJourneySection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress: s } = useScroll({
+    target: sectionRef,
+    offset: ["start 0.5", "end end"],
   });
 
-  // rawP = raw 0→1 — drives bulb drop AND room light (fully reversible)
-  const rawP = scrollYProgress;
+  const bulbDropY = useTransform(s, [0, 0.08], [-240, 0], { clamp: true });
+  const bulbSwing = useTransform(s,
+    [0.08, 0.10, 0.13, 0.135, 0.14, 0.145, 0.15],
+    [0,    -7,    5,   -2.2,   0.9,  -0.2,   0],
+    { clamp: true }
+  );
+  const bulbScale  = useTransform(s, [0, 0.06], [0.9, 1], { clamp: true });
+  const bulbOpacity = useTransform(s, [0, 0.02], [0, 1], { clamp: true });
+
+  const glowIntensity = useTransform(s, [0.06, 0.52], [0, 1], { clamp: true });
+
+  // ── bgColor: red dominates until 0.96, green only at the very end
+  const bgColor = useTransform(glowIntensity,
+    [0,          0.15,        0.40,        0.70,        0.96,        1        ],
+    ["#000000",  "#0e0000",   "#1a0000",   "#200000",   "#040d02",   "#030d02"]);
+
+  // ── castGradient: red through 0.88, green only at 0.93+
+  const castGradient = useTransform(glowIntensity,
+    [0,    0.12,  0.30,  0.55,  0.88,  0.93,  1    ],
+    [
+      "radial-gradient(ellipse 55% 30% at 50% 0%, rgba(0,0,0,0) 0%, transparent 60%)",
+      "radial-gradient(ellipse 65% 38% at 50% 0%, rgba(140,0,0,0.26) 0%, rgba(48,0,0,0.10) 40%, transparent 65%)",
+      "radial-gradient(ellipse 78% 48% at 50% 0%, rgba(168,0,0,0.36) 0%, rgba(62,0,0,0.14) 48%, transparent 70%)",
+      "radial-gradient(ellipse 92% 60% at 50% 0%, rgba(188,0,0,0.44) 0%, rgba(76,0,0,0.16) 54%, transparent 74%)",
+      "radial-gradient(ellipse 102% 68% at 50% 0%, rgba(192,0,0,0.42) 0%, rgba(78,0,0,0.15) 57%, transparent 76%)",
+      "radial-gradient(ellipse 112% 74% at 50% 0%, rgba(0,160,18,0.30) 0%, rgba(0,56,5,0.10) 62%, transparent 78%)",
+      "radial-gradient(ellipse 120% 80% at 50% 0%, rgba(0,180,24,0.28) 0%, rgba(0,65,6,0.09) 65%, transparent 80%)",
+    ]);
+
+  const orbSize    = useTransform(glowIntensity, [0, 1], [40, 1000], { clamp: true });
+  const orbOpacity = useTransform(glowIntensity, [0, 0.10, 0.88, 1], [0, 0.50, 0.62, 0.50], { clamp: true });
+  // ── orbColor: deep red through 0.96, green only at the very end
+  const orbColor   = useTransform(glowIntensity, [0, 0.12, 0.40, 0.72, 0.96, 1],
+    ["rgba(0,0,0,0)", "rgba(160,0,0,0.38)", "rgba(200,0,0,0.50)", "rgba(210,0,0,0.44)", "rgba(0,150,18,0.26)", "rgba(0,185,26,0.22)"]);
+
+  const scatterSize = useTransform(glowIntensity, [0, 1], [100, 1400], { clamp: true });
+  const scatterOp   = useTransform(glowIntensity, [0, 0.22, 0.50, 0.85, 1], [0, 0, 0.16, 0.24, 0.20], { clamp: true });
+  // ── scatterCol: green only at 0.90+ (was 0.85)
+  const scatterCol  = useTransform(glowIntensity, [0, 0.28, 0.55, 0.90, 1],
+    ["rgba(0,0,0,0)", "rgba(120,0,0,0.16)", "rgba(150,0,0,0.14)", "rgba(0,115,10,0.12)", "rgba(0,148,18,0.09)"]);
+
+  const vigOp = useTransform(glowIntensity, [0, 0.10, 0.40, 0.75, 1], [0, 0, 0.32, 0.50, 0.65], { clamp: true });
+
+  const headingOp = useTransform(s, [0.09, 0.17], [0, 1], { clamp: true });
+  const headingY  = useTransform(s, [0.09, 0.17], [20, 0], { clamp: true });
+  const listOp    = useTransform(glowIntensity, [0.10, 0.26], [0, 1], { clamp: true });
+  const listY     = useTransform(glowIntensity, [0.10, 0.26], [28, 0], { clamp: true });
+  const hintOp    = useTransform(s, [0, 0.03, 0.08], [1, 1, 0], { clamp: true });
+
+  const WIRE_HEIGHT = 64;
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap');
-        @media(max-width:720px){.jd{display:none!important}.jm{display:flex!important}}
-      `}</style>
+    <div ref={sectionRef} style={{ position: "relative" }}>
 
-      {/*
-        OUTER: 600vh → real scroll range.
-        INNER: sticky 100vh, overflow:hidden → never scrolls itself.
-        CONTENT: position:absolute → fills panel, no own scroll.
-        rawP is 1:1 with how far user has scrolled through 600vh.
-      */}
-      <div ref={outerRef} style={{ height:"600vh", position:"relative" }}>
-        <div style={{ position:"sticky", top:0, height:"100vh", overflow:"hidden" }}>
+      <div style={{
+        position: "sticky",
+        top: 0,
+        height: "100svh",
+        overflow: "hidden",
+        zIndex: 5,
+        pointerEvents: "none",
+      }} aria-hidden>
 
-          {/* Permanent black base */}
-          <div style={{ position:"absolute", inset:0, backgroundColor:"#060606", zIndex:0 }}/>
+        <motion.div style={{ position: "absolute", inset: 0, backgroundColor: bgColor }} />
+        <motion.div style={{ position: "absolute", inset: 0, background: castGradient }} />
+        <motion.div style={{
+          position: "absolute", borderRadius: "50%",
+          top: 0, left: "50%", x: "-50%", y: "-22%",
+          width: orbSize, height: orbSize,
+          background: orbColor, filter: "blur(120px)", opacity: orbOpacity,
+        }} />
+        <motion.div style={{
+          position: "absolute", borderRadius: "50%",
+          top: 0, left: "50%", x: "-50%", y: "-28%",
+          width: scatterSize, height: scatterSize,
+          background: scatterCol, filter: "blur(160px)", opacity: scatterOp,
+        }} />
+        <motion.div style={{
+          position: "absolute", inset: 0,
+          background: "radial-gradient(ellipse 60% 50% at 50% 0%, transparent 25%, rgba(0,0,0,0.45) 58%, rgba(0,0,0,0.88) 100%)",
+          opacity: vigOp,
+        }} />
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.022,
+          backgroundImage: `url("data:image/svg+xml,${GRAIN_SVG}")`,
+          backgroundSize: "128px",
+        }} />
 
-          {/* Room light — dims on scroll up */}
-          <RoomLight p={rawP}/>
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          zIndex: 10,
+        }}>
+          <div style={{
+            width: 2,
+            height: WIRE_HEIGHT,
+            background: "linear-gradient(to bottom, #0d0d0d, #565656)",
+            flexShrink: 0,
+          }} />
 
-          {/* All content */}
-          <div style={{ position:"absolute", inset:0, zIndex:10, display:"flex", flexDirection:"column", alignItems:"stretch" }}>
+          <motion.div style={{
+            y: bulbDropY,
+            rotate: bulbSwing,
+            scale: bulbScale,
+            opacity: bulbOpacity,
+            transformOrigin: "top center",
+            position: "relative",
+          }}>
+            <LightBulb glowIntensity={glowIntensity} />
+            <Sparks glowIntensity={glowIntensity} />
+          </motion.div>
+        </div>
 
-            {/* Bulb + title */}
-            <div style={{
-              display:"flex", flexDirection:"column", alignItems:"center",
-              paddingTop:"clamp(28px,4vh,56px)",
-              flexShrink:0,
-            }}>
-              <Bulb p={rawP}/>
-              <Heading p={rawP}/>
-            </div>
+        <motion.div style={{
+          position: "absolute",
+          bottom: 28,
+          left: "50%",
+          x: "-50%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 8,
+          opacity: hintOp,
+          zIndex: 20,
+        }}>
+          <span style={{
+            fontSize: "0.55rem", textTransform: "uppercase" as const,
+            letterSpacing: "0.30em", color: "rgba(255,255,255,0.16)",
+            fontFamily: "monospace",
+          }}>Scroll</span>
+          <motion.div style={{
+            width: 1, height: 28,
+            background: "linear-gradient(to bottom, rgba(255,255,255,0.24), transparent)",
+          }}
+            animate={{ scaleY: [1, 0.2, 1], opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 2.0, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
 
-            {/* Rows container — fills rest of panel, clips overflow */}
-            <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
-              {ROWS.map((row, i) => (
-                <Row key={row.year} row={row} idx={i} p={rawP}/>
-              ))}
-            </div>
+      </div>
+
+      <div style={{
+        position: "relative",
+        zIndex: 10,
+        marginTop: "-100svh",
+      }}>
+
+        <div style={{ height: "50svh" }} />
+
+        <motion.div style={{
+          textAlign: "center",
+          padding: "0 16px 48px",
+          opacity: headingOp,
+          y: headingY,
+        }}>
+          <p style={{
+            fontSize: "0.65rem", textTransform: "uppercase" as const,
+            letterSpacing: "0.38em", color: "rgba(140,255,70,0.70)",
+            fontFamily: "monospace", marginBottom: 12,
+          }}>Since 2020</p>
+          <h2 style={{
+            fontFamily: "'Georgia', serif",
+            fontSize: "clamp(2rem, 5vw, 3.6rem)",
+            fontWeight: 300, color: "rgba(255,255,255,0.96)",
+            letterSpacing: "-0.026em", lineHeight: 1.1, margin: 0,
+          }}>Our Journey</h2>
+          <div style={{
+            margin: "16px auto 0", height: 1, width: 80,
+            background: "linear-gradient(to right, transparent, rgba(140,255,70,0.50), transparent)",
+          }} />
+        </motion.div>
+
+        <motion.div style={{
+          opacity: listOp, y: listY,
+          maxWidth: 820, margin: "0 auto",
+          padding: "0 16px 100px",
+        }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+            {TIMELINE.map((entry, i) => (
+              <TimelineCard key={entry.year} entry={entry} index={i} isLast={i === TIMELINE.length - 1} />
+            ))}
           </div>
 
-        </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 56, gap: 10 }}>
+            <div style={{
+              width: 14, height: 14, borderRadius: "50%",
+              background: "radial-gradient(circle, #88ff88 20%, #33cc33 80%)",
+              boxShadow: "0 0 18px 6px rgba(60,200,60,0.50)",
+            }} />
+            <p style={{
+              fontSize: "0.62rem", textTransform: "uppercase" as const,
+              letterSpacing: "0.30em", color: "rgba(180,255,180,0.55)", fontFamily: "monospace",
+            }}>The story continues…</p>
+          </div>
+        </motion.div>
+
       </div>
-    </>
+    </div>
   );
 }

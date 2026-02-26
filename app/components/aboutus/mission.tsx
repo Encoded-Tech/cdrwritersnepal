@@ -184,21 +184,24 @@ export default function MissionVisionSection() {
           animate={headerInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
           transition={{ duration: 0.75, ease: E }}
         >
-          <div className="flex justify-center mb-7">
-            <span
-              className="inline-flex items-center gap-2 font-mono font-black tracking-widest uppercase px-4 py-2 rounded-full border"
+                {/* Eyebrow */}
+              <div className="flex justify-center gap-3 mb-8">
+                
+               <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase  px-3 py-1.5 rounded-full border"
               style={{
-                fontSize: "0.65rem",
-                color: "#c8102e",
+                color: "var(--red)",
                 background: "rgba(200,16,46,0.05)",
-                borderColor: "rgba(200,16,46,0.22)",
-                letterSpacing: "0.2em",
+                borderColor: "rgba(200,16,46,0.18)",
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#c8102e" }} />
-              Who We Are
+              <span style={{
+                width: 5, height: 5, borderRadius: "50%",
+                background: "var(--red)", display: "inline-block",
+              }} />
+              Who Are We
             </span>
-          </div>
+
+              </div>
 
           <h2
             id="mv-heading"

@@ -11,6 +11,7 @@ import { HeroBackground } from "@/app/components/home/landing/bg";
 import { StatPill }        from "@/app/components/home/landing/bgAtoms";
 import AboutSection from "@/app/components/aboutus/mission";
 import JourneySection from "@/app/components/aboutus/journey";
+import AboutCDRServices from "@/app/components/aboutus/about";
 
 /* ─── Shared easing — typed as a const tuple so TS narrows correctly ── */
 const E = [0.22, 1, 0.36, 1] as [number, number, number, number];
@@ -304,7 +305,7 @@ export default function AboutHero() {
               </p>
             </motion.div>
           </motion.div>
-        </div>\
+        </div>
        
 
         <div className="h-10 flex-shrink-0" />
@@ -313,6 +314,7 @@ export default function AboutHero() {
 
      <AboutSection />
      <JourneySection />
+     <AboutCDRServices />
  </>
   );
 }

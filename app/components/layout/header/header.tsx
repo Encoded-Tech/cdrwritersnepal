@@ -44,8 +44,8 @@ const NAV_LINKS: NavLink[] = [
   { id: "Home",    label: "Home",    href: "/" },
   { id: "About",   label: "About",   href: "/about" },
   { id: "services", label: "Services", href: "/services" },
-  { id: "process", label: "Process", href: "#process" },
-  { id: "contact", label: "Contact", href: "#contact" },
+  { id: "pricing", label: "pricing", href: "/pricing" },
+  { id: "contact", label: "Contact", href: "/contact" },
 ];
 
 const SPRING_SMOOTH: Transition = { type: "spring", stiffness: 380, damping: 38, mass: 0.8 };
@@ -502,12 +502,12 @@ export default function CDRHeader() {
       `}</style>
 
       <motion.header
-        className="fixed top-0 left-0 right-0 z-50"
+        className="fixed   top-0 left-0 right-0 z-50"
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: visible ? 0 : -88, opacity: visible ? 1 : 0 }}
         transition={{ type: "spring", stiffness: 340, damping: 36, mass: 0.9 }}
       >
-        <div className="w-full">
+        <div className="w-full ">
           <motion.div
             className={`${scrolled ? "header-glass-scrolled" : "header-glass"} transition-all duration-300`}
             style={{

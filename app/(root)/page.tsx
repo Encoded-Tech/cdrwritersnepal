@@ -8,12 +8,6 @@ import SuccessfulOutcomes from "../components/home/successfulOutcomes";
 import ProcessSteps from "../components/home/processSteps";
 import FAQSection from "../components/home/faqSection";
 import TestimonialSection from "../components/home/testimonial/testimonialSection";
- 
-
-
-
-
-
 
 export const metadata: Metadata = {
   title: "CDR Writers Nepal - 100% Positive Assessment Guaranteed",
