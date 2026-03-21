@@ -28,7 +28,7 @@ const OUTCOMES: Outcome[] = [
   {
     id: 1,
     title: "Structural Engineer",
-    subtitle: "EA Recognition — Civil Engineering",
+    subtitle: "EA Recognition - Civil Engineering",
     label: "Featured",
     image: "/outcome1.png",
     aspect: "wide",
@@ -36,7 +36,7 @@ const OUTCOMES: Outcome[] = [
   {
     id: 2,
     title: "Mechanical Engineer",
-    subtitle: "EA Recognition — Mechanical",
+    subtitle: "EA Recognition - Mechanical",
     label: "Approved",
     image: "/positive outcome.pdf.png",
     aspect: "square",
@@ -44,7 +44,7 @@ const OUTCOMES: Outcome[] = [
   {
     id: 3,
     title: "Software Engineer",
-    subtitle: "ACS Skills Assessment — ICT",
+    subtitle: "ACS Skills Assessment - ICT",
     label: "Approved",
     image: "/success1.png",
     aspect: "square",
@@ -52,7 +52,7 @@ const OUTCOMES: Outcome[] = [
   {
     id: 4,
     title: "Civil Engineer",
-    subtitle: "EA Recognition — Civil",
+    subtitle: "EA Recognition - Civil",
     label: "Featured",
     image: "/success2.png",
     aspect: "wide",
@@ -60,7 +60,7 @@ const OUTCOMES: Outcome[] = [
   {
     id: 5,
     title: "Electrical Engineer",
-    subtitle: "EA Recognition — Electrical",
+    subtitle: "EA Recognition - Electrical",
     label: "Approved",
     image: "/success3.png",
     aspect: "square",
@@ -68,7 +68,7 @@ const OUTCOMES: Outcome[] = [
   {
     id: 6,
     title: "Environmental Engineer",
-    subtitle: "EA Recognition — Environmental",
+    subtitle: "EA Recognition - Environmental",
     label: "Approved",
     image: "/success4.png",
     aspect: "square",
@@ -309,14 +309,14 @@ function ImageCard({ outcome, onOpen, height = "h-64", priority = false }: Image
 }
 
 /* ─────────────────────────────────────────────
-   LIGHTBOX — THE FIX
+   LIGHTBOX - THE FIX
    
    Root cause of image not showing:
    Next.js <Image fill> requires its *direct* parent
    to have position:relative AND an explicit pixel
    height (percentage heights don't propagate from
    flex children). We use a plain <img> tag here
-   instead — the lightbox is decorative presentation,
+   instead - the lightbox is decorative presentation,
    not an LCP candidate, so next/image's benefits
    don't apply. This guarantees the image renders.
    
@@ -364,7 +364,7 @@ function Lightbox({ outcome, onClose }: LightboxProps) {
             }}
           />
 
-          {/* Fullscreen wrapper — clicking the dark area around the image closes */}
+          {/* Fullscreen wrapper - clicking the dark area around the image closes */}
           <motion.div
             key="lb-wrapper"
             initial={{ opacity: 0 }}
@@ -384,7 +384,7 @@ function Lightbox({ outcome, onClose }: LightboxProps) {
               boxSizing: "border-box",
             }}
           >
-            {/* Image — stop propagation so clicking it doesn't close */}
+            {/* Image - stop propagation so clicking it doesn't close */}
             <motion.div
               onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.88, opacity: 0 }}
@@ -417,7 +417,7 @@ function Lightbox({ outcome, onClose }: LightboxProps) {
               />
             </motion.div>
 
-            {/* Caption — slides up below image */}
+            {/* Caption - slides up below image */}
             <motion.div
               onClick={(e) => e.stopPropagation()}
               initial={{ opacity: 0, y: 10 }}
@@ -526,7 +526,7 @@ function Lightbox({ outcome, onClose }: LightboxProps) {
 }
 
 /* ─────────────────────────────────────────────
-   SEE MORE BUTTON — red on hover
+   SEE MORE BUTTON - red on hover
 ───────────────────────────────────────────── */
 function SeeMoreButton() {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -717,7 +717,7 @@ export default function SuccessfulOutcomes() {
                 <em style={{ color: "#b41e1e", fontStyle: "italic", fontWeight: 600 }}>Outcomes</em>
               </motion.h2>
 
-              <motion.p variants={headerVariants} style={{ fontSize: "0.84rem", color: "#8a847c", lineHeight: 1.76, maxWidth: 360 }}>
+              <motion.p variants={headerVariants} className="normal-paragraph" style={{fontSize: 14}}>
                 Real engineers. Real approvals. Every outcome here represents a career milestone we helped achieve.
               </motion.p>
             </div>

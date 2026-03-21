@@ -1077,42 +1077,14 @@ function FaqSection() {
 // 8.  F I N A L   C T A
 // ══════════════════════════════════════════════════════════════════════════════
 
-function FinalCta({ onOpenForm }: { onOpenForm: () => void }) {
-  const v = { hidden:{ opacity:0, y:16 }, visible:(d=0)=>({ opacity:1, y:0, transition:{ duration:0.55, ease:EASE, delay:d } }) };
-  return (
-    <section className="relative py-32 px-6 overflow-hidden" style={{ background:"white" }}>
-      <div aria-hidden style={{ position:"absolute", inset:0, backgroundImage:"radial-gradient(ellipse 80% 70% at 50% 50%, rgba(200,16,46,0.055) 0%, transparent 60%)", pointerEvents:"none" }} />
-      <div className="relative max-w-3xl mx-auto text-center">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once:true }}
-          variants={{ visible:{ transition:{ staggerChildren:0.09 } } }}>
-          <motion.div variants={v} custom={0} className="flex justify-center mb-7"><EyebrowBadge label="Get Started Today" /></motion.div>
-          <motion.h2 variants={v} custom={0.06} className="font-bold leading-[1.18] mb-6"
-            style={{ fontFamily:"var(--font-serif, 'Georgia', serif)", fontSize:"clamp(2rem, 4.5vw, 3.2rem)", color:"#18140e", letterSpacing:"-0.025em" }}>
-            Your migration assessment starts with{" "}
-            <em style={{ color:"var(--red, #c8102e)", fontStyle:"italic" }}>one conversation.</em>
-          </motion.h2>
-          <motion.p variants={v} custom={0.1} className="leading-[1.85] mb-10 mx-auto" style={{ fontSize:"0.97rem", color:"#5c5750", maxWidth:500 }}>
-            Book a free consultation. We&apos;ll confirm the right package, timeline, and pricing for your specific background — before you commit to anything.
-          </motion.p>
-          <motion.div variants={v} custom={0.14} className="flex flex-wrap gap-3 justify-center mb-8">
-            <PrimaryBtn onClick={onOpenForm}>Book Free Consultation</PrimaryBtn>
-            <GhostBtn>Email Us Directly</GhostBtn>
-          </motion.div>
-          <motion.p variants={v} custom={0.2} style={{ fontSize:"0.72rem", color:"#bbb", fontWeight:500, letterSpacing:"0.02em" }}>
-            No commitment required · Response within 24 hours · Serving engineers worldwide
-          </motion.p>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
+
 
 // ══════════════════════════════════════════════════════════════════════════════
 // ROOT
 // ══════════════════════════════════════════════════════════════════════════════
 
 export default function PricingPage() {
-  const [agentOpen, setAgentOpen] = useState(false);
+  const [, setAgentOpen] = useState(false);
   const openForm = useCallback(() => setAgentOpen(true), []);
 
   return (

@@ -36,7 +36,7 @@ const STEPS: Step[] = [
   {
     step: "02",
     title: "Evidence Audit",
-    description: "We review every document, project, and credential you've accumulated — identifying gaps before they become problems.",
+    description: "We review every document, project, and credential you've accumulated - identifying gaps before they become problems.",
     icon: (<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>),
     color: "#b41e1e", accent: "#ff4040",
   },
@@ -50,7 +50,7 @@ const STEPS: Step[] = [
   {
     step: "04",
     title: "Expert Authoring",
-    description: "Our engineers write your Career Episodes and Summary Statement — technically precise, narratively compelling.",
+    description: "Our engineers write your Career Episodes and Summary Statement - technically precise, narratively compelling.",
     icon: (<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>),
     color: "#b41e1e", accent: "#ff4040",
   },
@@ -64,7 +64,7 @@ const STEPS: Step[] = [
   {
     step: "06",
     title: "Submission & Approval",
-    description: "We handle the final submission. You wait with confidence — not uncertainty. Most clients hear back within weeks.",
+    description: "We handle the final submission. You wait with confidence - not uncertainty. Most clients hear back within weeks.",
     icon: (<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><polyline points="22 2 11 13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>),
     color: "#b41e1e", accent: "#ff4040",
   },
@@ -363,12 +363,12 @@ function SectionHeader({ inView }: { inView: boolean }) {
           How It Works
         </span>
       </motion.div>
-      <motion.h2 variants={itemVariants} style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, color: "#18140e", letterSpacing: "-0.03em", lineHeight: 1.08, margin: "0 auto 1rem" }}>
+      <motion.h2 variants={itemVariants} style={{ fontFamily: "serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 700, color: "#18140e", letterSpacing: "-0.03em", lineHeight: 1.08, margin: "0 auto 1rem" }}>
         Your path to{" "}<em style={{ color: "#b41e1e", fontStyle: "italic", fontWeight: 600 }}>approval</em>,{" "}<br />
         <span style={{ fontWeight: 400, opacity: 0.55, fontSize: "0.85em" }}>step by step.</span>
       </motion.h2>
-      <motion.p variants={itemVariants} style={{ fontSize: "0.84rem", color: "#8a847c", maxWidth: 340, margin: "16px auto 0", lineHeight: 1.76, letterSpacing: "0.01em" }}>
-        A transparent, structured process — from first consultation to final CDR submission.
+      <motion.p variants={itemVariants} className="centered-paragraph leading-relaxed" style={{fontSize: 14}}>
+        A transparent, structured process - from first consultation to final CDR submission.
       </motion.p>
     </motion.div>
   );

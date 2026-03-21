@@ -20,7 +20,7 @@ const FEATURES = [
   },
   {
     title: "Technical Depth and Problem-Solving Narrative",
-    desc:  "A strong CDR does more than list responsibilities. It articulates the engineering challenges you faced, the decisions you made, and the outcomes you delivered — with the precision EA assessors expect.",
+    desc:  "A strong CDR does more than list responsibilities. It articulates the engineering challenges you faced, the decisions you made, and the outcomes you delivered - with the precision EA assessors expect.",
   },
   {
     title: "Alignment with Australian Engineering Standards",
@@ -239,8 +239,8 @@ export default function WhyExpert() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: EASE, delay: 0.35 }}
-              className="pt-7 text-[0.78rem] leading-relaxed"
-              style={{ color: "#bbb" }}
+              className="pt-7 text-[0.78rem] text-gray-600 leading-relaxed"
+       
             >
               All engagements are handled by qualified engineers with
               direct experience in Engineers Australia competency frameworks.

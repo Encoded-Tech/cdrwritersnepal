@@ -11,14 +11,14 @@ const MV = [
     label: "Our Mission",
     accent: "#c8102e",
     headline: "Every skilled professional deserves a clear path into Australia.",
-    text: "We exist to remove the confusion, paperwork, and stress from skills assessments. Whether it's a CDR for Engineers Australia, a VETASSES application, or an ACS report — we make sure the right people reach the right opportunities, without wasted time or rejected applications.",
+    text: "We exist to remove the confusion, paperwork, and stress from skills assessments. Whether it's a CDR for Engineers Australia, a VETASSES application, or an ACS report - we make sure the right people reach the right opportunities, without wasted time or rejected applications.",
   },
   {
     index: "02",
     label: "Our Vision",
     accent: "#1a1a2e",
     headline: "A migration system where qualifications speak for themselves.",
-    text: "We envision a future where no qualified engineer, tradesperson, or ICT professional is held back by documentation barriers. Our goal is to be Australia's most trusted skills assessment partner — one application, one expert team, zero guesswork.",
+    text: "We envision a future where no qualified engineer, tradesperson, or ICT professional is held back by documentation barriers. Our goal is to be your's most trusted skills assessment partner - one application, one expert team, zero guesswork.",
   },
 ];
 
@@ -220,11 +220,10 @@ export default function MissionVisionSection() {
           </h2>
 
           <p
-            className="mx-auto m-0 max-w-lg"
+            className="mx-auto m-0 max-w-2xl"
             style={{ fontSize: "0.95rem", color: "#7a746e", lineHeight: 1.82, letterSpacing: "0.005em" }}
           >
-            A dedicated skills assessment consultancy helping engineers, tradespeople,
-            and ICT professionals navigate CDR, VETASSES, and ACS applications with confidence.
+       Welcome to CDR Writers Nepal! We specialize in assisting engineers with their Competency Demonstration Reports (CDR) for skilled migration to Australia. With over 4 years of dedicated service, we have successfully helped over 500 clients achieve positive outcomes with our professional and high-quality reports.
           </p>
         </motion.div>
 

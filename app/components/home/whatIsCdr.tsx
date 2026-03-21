@@ -95,7 +95,7 @@ export default function WhatIsCDR() {
        <em style={{ color: "var(--red)", fontStyle: "italic" }}>CDR Report?</em>
             </h2>
 
-            <p className="normal-paragraph leading-relaxed" style={{ maxWidth: "520px" }}>
+            <p className="normal-paragraph leading-relaxed text-justify" style={{ maxWidth: "520px" }}>
    In simple terms, A Competency Demonstration Report (CDR) is a collection of documents through which engineers can prove their competencies in order to get a Skilled Migration visa for Australia. Engineers: Those seeking to immigrate to Australia via one of the skilled migration programs, such as the Skilled Independent Visa (Subclass 189), Skilled Nominated Visa (Subclass 190), or Skilled Work Regional (Provisional) Visa (Subclass 491), are generally required to submit a CDR.
             </p>
           </div>

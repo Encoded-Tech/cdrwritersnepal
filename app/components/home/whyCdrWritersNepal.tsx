@@ -143,22 +143,7 @@ export default function WhyCDRWritersNepal() {
       className="py-20 md:py-32 px-4"
       style={{ background: "white", position: "relative", overflow: "hidden" }}
     >
-      {/* Ambient glow */}
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          top: "5%",
-          left: "-6%",
-          width: 560,
-          height: 560,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(180,30,30,0.05) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
+     
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-14 lg:gap-20 items-center">
 
@@ -230,9 +215,10 @@ export default function WhyCDRWritersNepal() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.44, ease: EASE, delay: 0.12 }}
+              className="normal-paragraph"
               style={{
                 fontSize: "0.97rem",
-                color: "#5c5750",
+             
                 lineHeight: 1.82,
                 maxWidth: 460,
                 marginBottom: "2.5rem",

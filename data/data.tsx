@@ -7,7 +7,7 @@ export const CDR_INFO: CdrInfoMap = {
     description:
       "Career Episodes are three detailed written accounts of your engineering experience. Each episode focuses on a specific project, role, or period of your career.",
     points: [
-      "Each episode is 1000–2500 words long",
+      "Each episode is 1000-2500 words long",
       "Must describe your personal engineering activity",
       "Should highlight problem-solving and technical skills",
     ],

@@ -165,7 +165,7 @@ function FooterLogo(): React.ReactElement {
             </svg>
             <span
               style={{
-                fontFamily: "'Syne',sans-serif",
+
                 fontSize: "7px",
                 color: "rgba(239,68,68,0.5)",
                 letterSpacing: "0.05em",
@@ -196,7 +196,7 @@ function FooterLogo(): React.ReactElement {
       {/* Wordmark */}
       <span
         className="font-bold text-white text-lg tracking-tight"
-        style={{ fontFamily: "'Syne',sans-serif" }}
+      
       >
         CDR Writers Nepal
       </span>
@@ -226,10 +226,10 @@ export default function CDRFooter(): React.ReactElement {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+        
 
         .footer-root {
-          font-family: 'DM Sans', sans-serif;
+    
           background: #0b0f0c;
           position: relative;
           overflow: hidden;
@@ -254,7 +254,7 @@ export default function CDRFooter(): React.ReactElement {
           background: radial-gradient(circle, rgba(22,163,74,0.06) 0%, transparent 70%);
           pointer-events: none;
         }
-        .syne { font-family: 'Syne', sans-serif; }
+        
         .footer-divider {
           height: 1px;
           background: linear-gradient(90deg, transparent, rgba(220,38,38,0.15), rgba(22,163,74,0.12), transparent);
@@ -298,7 +298,7 @@ export default function CDRFooter(): React.ReactElement {
         .newsletter-btn {
           background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
           color: white;
-          font-family: 'Syne', sans-serif;
+      
           font-weight: 600;
           letter-spacing: 0.02em;
           transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
@@ -363,7 +363,7 @@ export default function CDRFooter(): React.ReactElement {
         .cta-primary {
           background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
           color: white;
-          font-family: 'Syne', sans-serif;
+          font-family: '', sans-serif;
           font-weight: 700;
           font-size: 14px;
           letter-spacing: 0.02em;
@@ -387,7 +387,7 @@ export default function CDRFooter(): React.ReactElement {
           background: none;
           border: none;
           cursor: pointer;
-          font-family: 'Syne', sans-serif;
+
           font-weight: 600;
           padding: 6px 0;
           transition: opacity 0.2s;
@@ -397,13 +397,13 @@ export default function CDRFooter(): React.ReactElement {
           font-size: 11px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          font-family: 'Syne', sans-serif;
+
           font-weight: 700;
           color: #22c55e;
           margin-bottom: 16px;
         }
         .nav-heading {
-          font-family: 'Syne', sans-serif;
+
           font-weight: 700;
           font-size: 13px;
           letter-spacing: 0.06em;
@@ -419,7 +419,7 @@ export default function CDRFooter(): React.ReactElement {
         {/* ── CTA BAR ── */}
         <div className="cta-bar mx-6 mt-8 mb-0 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <p className="syne font-bold text-white text-lg leading-tight">
+            <p className=" font-bold text-white text-lg leading-tight">
               Ready to migrate to Australia?
             </p>
             <p className="text-sm text-gray-400 mt-1">
@@ -450,7 +450,7 @@ export default function CDRFooter(): React.ReactElement {
 
               <p className="text-sm text-gray-400 leading-relaxed mb-6 max-w-sm">
                 Nepal&apos;s most trusted CDR writing service. We&apos;ve helped 500+ engineers across
-                disciplines achieve successful skills assessment through Engineers Australia —
+                disciplines achieve successful skills assessment through Engineers Australia -
                 with precision, integrity, and zero plagiarism.
               </p>
 
@@ -479,7 +479,7 @@ export default function CDRFooter(): React.ReactElement {
             <div className="lg:col-span-5 grid grid-cols-3 gap-6">
               {Object.entries(navLinks).map(([section, links]: [string, NavLinkItem[]]) => (
                 <div key={section}>
-                  <p className="nav-heading">{section}</p>
+                  <p className="nav-heading pl-4">{section}</p>
                   <ul className="space-y-2">
                     {links.map((link: NavLinkItem) => (
                       <li key={link.label}>
@@ -495,13 +495,13 @@ export default function CDRFooter(): React.ReactElement {
             <div className="lg:col-span-3">
               <p className="nav-heading">Stay Informed</p>
               <p className="text-sm text-gray-500 mb-4 leading-relaxed">
-                Get CDR tips, EA guidelines updates, and migration insights — directly to your inbox.
+                Get CDR tips, EA guidelines updates, and migration insights - directly to your inbox.
               </p>
 
               {subscribed ? (
                 <div
                   className="text-sm py-3"
-                  style={{ color: "#22c55e", fontFamily: "Syne, sans-serif", fontWeight: 500 }}
+                  style={{ color: "#22c55e",  fontWeight: 500 }}
                 >
                   ✦ You&apos;re in! Watch your inbox.
                 </div>
@@ -549,7 +549,7 @@ export default function CDRFooter(): React.ReactElement {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <p className="section-label">ANZSCO Codes We Cover</p>
-                <p className="syne font-bold text-white text-base">Engineering Professions</p>
+                <p className=" font-bold text-white text-base">Engineering Professions</p>
               </div>
               <button
                 onClick={(): void => setShowAllProfessions(!showAllProfessions)}

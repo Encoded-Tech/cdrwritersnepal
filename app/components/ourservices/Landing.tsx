@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, Variants, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, Variants, } from "framer-motion";
 import Link from "next/link";
 import { HeroBackground } from "@/app/components/home/landing/bg";
 import { AgentForm } from "@/app/components/home/landing/agentForm";

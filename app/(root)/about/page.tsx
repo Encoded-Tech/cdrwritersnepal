@@ -11,7 +11,7 @@ import { HeroBackground } from "@/app/components/home/landing/bg";
 import { StatPill }        from "@/app/components/home/landing/bgAtoms";
 import AboutSection from "@/app/components/aboutus/mission";
 import JourneySection from "@/app/components/aboutus/journey";
-import AboutCDRServices from "@/app/components/aboutus/about";
+import AboutCDRServices from "@/app/components/aboutus/whyChooseUs";
 
 /* ─── Shared easing — typed as a const tuple so TS narrows correctly ── */
 const E = [0.22, 1, 0.36, 1] as [number, number, number, number];
