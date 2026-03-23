@@ -44,7 +44,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "100% Approval Success",
     description: "Professional Competency Demonstration Reports tailored to meet Engineers Australia standards.",
     icon: "📄",
-     accentColor: "#ef4444",
+         accentColor: "#10b981",
     highlights: ["Engineers Australia", "100% Success"]
   },
    {
@@ -53,7 +53,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Professional Skills",
     description: "End-to-end support for VETASSESS skill assessments across various occupations.",
     icon: "📊",
-     accentColor: "#ef4444",
+         accentColor: "#10b981",
     highlights: ["Skills Assessment", "Various Occupations"]
   },
   
@@ -63,7 +63,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Trade Recognition",
     description: "Guidance and documentation support for Trade Recognition Australia assessments.",
     icon: "🛠️",
-      accentColor: "#ef4444",
+          accentColor: "#10b981",
     highlights: ["Trade Assessment", "Documentation"]
   },
  
@@ -73,7 +73,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Prior Learning",
     description: "High-quality Recognition of Prior Learning reports that clearly showcase your skills and experience.",
     icon: "📝",
-       accentColor: "#ef4444",
+           accentColor: "#10b981",
     highlights: ["RPL Reports", "Showcase Skills"]
   },
   {
@@ -82,7 +82,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "With/Without RPL",
     description: "Complete assistance for ACS assessments, including RPL for candidates without ICT qualifications.",
     icon: "💻",
-     accentColor: "#ef4444",
+         accentColor: "#10b981",
     highlights: ["ICT Assessment", "RPL Included"]
   },
   {
@@ -91,7 +91,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Nursing & Midwifery",
     description: "Comprehensive support for nurses and midwives seeking skill assessment with ANMAC.",
     icon: "⚕️",
-       accentColor: "#ef4444",
+           accentColor: "#10b981",
     highlights: []
   },
   {
@@ -100,7 +100,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Teaching Professionals",
     description: "Skill assessment guidance for teachers migrating to Australia through AITSL.",
     icon: "🏫",
-     accentColor: "#ef4444",
+         accentColor: "#10b981",
     highlights: []
   },
   {
@@ -109,7 +109,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Accounting & Finance",
     description: "Skill assessment support for accountants through CPA, CA ANZ, and IPA.",
     icon: "📈",
-      accentColor: "#ef4444",
+          accentColor: "#10b981",
     highlights: []
   },
   {
@@ -118,7 +118,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Medical Practitioners",
     description: "Guidance for medical practitioners seeking assessment through the Australian Medical Council.",
     icon: "🩺",
-     accentColor: "#ef4444",
+         accentColor: "#10b981",
     highlights: []
   },
   {
@@ -127,7 +127,7 @@ export const SERVICE_ITEMS: ServiceItem[] = [
     tagline: "Maximize Selection Chances",
     description: "Expert help in submitting Expression of Interest (EOI) to maximize your chances of selection.",
     icon: "📌",
-      accentColor: "#ef4444",
+          accentColor: "#10b981",
     highlights: ["Expression of Interest", "Points Strategy"]
   },
 ];
