@@ -4,17 +4,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Transition } from "framer-motion";
-import AgentModal from "@/app/components/agent/AgentModal";
 
 import {
-  SERVICE_ITEMS,
   ANZSCO_CATEGORIES,
   ALL_OCCUPATIONS,
   NAV_LINKS,
   type NavLink,
   type DropdownType,
-  ServiceItem,
-
 } from "./header-data";
 
 // ─── Constants & Types ────────────────────────────────────────────────────────
@@ -110,17 +106,15 @@ function OccupationSearch({ onClose, className = "relative w-[280px]" }: { onClo
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
 
-  // Debounced search for exact/partial matches on title or code
   const results = query.trim().length > 1
     ? ALL_OCCUPATIONS.filter(o =>
       o.code.includes(query) ||
       o.title.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 5) // limit to top 5
+    ).slice(0, 5)
     : [];
 
   return (
     <div className={className} onBlur={(e) => {
-      // Delay closing search results slightly to allow clicks to register
       if (!e.currentTarget.contains(e.relatedTarget)) {
         setTimeout(() => setFocused(false), 200);
       }
@@ -211,106 +205,18 @@ function OccupationSearch({ onClose, className = "relative w-[280px]" }: { onClo
   )
 }
 
-// ─── Mega Menus ───────────────────────────────────────────────────────────────
-
-function ServicesMegaMenu({
-  isVisible,
-  onMouseEnter,
-  onMouseLeave,
-}: {
-  isVisible: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}) {
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={SPRING_MEGA}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            zIndex: 180,
-          }}
-        >
-          <div style={{ height: "1px", background: "linear-gradient(90deg, transparent 0%, rgba(200,16,46,0.65) 30%, rgba(200,16,46,0.65) 70%, transparent 100%)" }} />
-
-          <div
-            style={{
-              background: "rgba(6,6,6,0.92)",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-              boxShadow: "0 32px 80px rgba(0,0,0,0.8)",
-              backdropFilter: "blur(28px) saturate(160%)",
-            }}
-          >
-            <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "26px 48px 22px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-                <div>
-                  <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: "19px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-                    Our Services
-                  </h3>
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px" }}>
-                {SERVICE_ITEMS.map((item: ServiceItem, i: number) => (
-                  <Link href={item.href} key={item.href} style={{ textDecoration: "none" }}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05, ease: EASING, duration: 0.3 }}
-                      style={{
-                        borderRadius: "14px",
-                        padding: "16px",
-                        height: "100%",
-                        background: "rgba(255,255,255,0.02)",
-                        border: "1px solid rgba(255,255,255,0.05)",
-                        transition: "all 0.2s"
-                      }}
-                      className="group hover:bg-white/5 hover:border-white/10"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors border" style={{ backgroundColor: `${item.accentColor}1A`, borderColor: `${item.accentColor}33` }}>
-                          {item.icon}
-                        </div>
-                        {item.badge && (
-                          <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded" style={{ color: item.accentColor, background: `${item.accentColor}20` }}>
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <h4 className="text-white font-bold mb-1 text-[15px] group-hover:text-white">{item.label}</h4>
-                      <p className="text-white/60 text-[12px] leading-relaxed line-clamp-2 mb-3">{item.description}</p>
-                      <div className="text-[12px] font-semibold flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: item.accentColor }}>
-                        View Service <span>→</span>
-                      </div>
-                    </motion.div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
+// ─── Mega Menu ────────────────────────────────────────────────────────────────
 
 function AnzscoMegaMenu({
   isVisible,
   onMouseEnter,
   onMouseLeave,
+  onItemClick
 }: {
   isVisible: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onItemClick: () => void;
 }) {
   return (
     <AnimatePresence>
@@ -354,7 +260,7 @@ function AnzscoMegaMenu({
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
                 {ANZSCO_CATEGORIES.map((cat, i) => (
-                  <Link href={cat.href} key={cat.id} style={{ textDecoration: "none" }}>
+                  <Link href={cat.href} key={cat.id} onClick={onItemClick} style={{ textDecoration: "none" }}>
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -522,52 +428,7 @@ function NavPill({
   );
 }
 
-// ─── CTA Button ───────────────────────────────────────────────────────────────
-
-
-// ─── Mobile Accordions & Menu ───────────────────────────────────────────────
-
-function MobileServicesAccordion({
-  isParentActive,
-  onItemClick,
-}: {
-  isParentActive: boolean;
-  onItemClick: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <div>
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-transparent border-none"
-      >
-        <span className="flex items-center gap-2 font-sans text-[15px] font-medium text-gray-300">
-          Services
-        </span>
-        <motion.svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} animate={{ rotate: expanded ? 180 : 0 }}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </motion.svg>
-      </button>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="flex flex-col gap-1 px-4 pb-2">
-              {SERVICE_ITEMS.map((item: ServiceItem) => (
-                <Link key={item.href} href={item.href} onClick={onItemClick} className="flex gap-3 p-2 rounded-lg hover:bg-white/5 no-underline">
-                  <span className="text-xl">{item.icon}</span>
-                  <div>
-                    <p className="text-white text-sm font-medium">{item.label}</p>
-                    <p className="text-white/50 text-[11px]">{item.tagline}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+// ─── Mobile Accordion & Menu ─────────────────────────────────────────────────
 
 function MobileAnzscoAccordion({
   isParentActive,
@@ -647,9 +508,6 @@ function MobileMenu({ open, activeSection, onClose }: MobileMenuProps) {
               <ul className="space-y-1">
                 {NAV_LINKS.map((link) => {
                   const isActive = activeSection === link.id;
-                  if (link.dropdownType === "services") {
-                    return <li key={link.id}><MobileServicesAccordion isParentActive={isActive} onItemClick={onClose} /></li>;
-                  }
                   if (link.dropdownType === "anzsco") {
                     return <li key={link.id}><MobileAnzscoAccordion isParentActive={isActive} onItemClick={onClose} /></li>;
                   }
@@ -682,10 +540,8 @@ export default function CDRHeader() {
   const { scrolled, visible } = useScrollBehavior();
   const activeSection = useActiveLink(NAV_LINKS);
 
-  // Single lifted state for all dropdowns ensures we only render ONE mega menu at a time
   const [activeDropdown, setActiveDropdown] = useState<DropdownType>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [agentOpen, setAgentOpen] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -769,11 +625,8 @@ export default function CDRHeader() {
               </div>
 
               <div className="flex items-center gap-3 shrink-0 lg:w-[240px] lg:justify-end">
-                
-                <motion.button
-                  onClick={() => setAgentOpen(true)}
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.97 }}
+                <Link
+                  href="/become-an-agent"
                   className="hidden lg:flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-emerald-400 no-underline outline-none"
                   style={{
                     border: "1px solid rgba(16,185,129,0.3)",
@@ -782,7 +635,7 @@ export default function CDRHeader() {
                   }}
                 >
                   <span>🤝</span> Become an Agent
-                </motion.button>
+                </Link>
                 <motion.button
                   onClick={toggleMenu}
                   className="lg:hidden flex flex-col items-center justify-center w-10 h-10 rounded-xl gap-1.5"
@@ -801,23 +654,18 @@ export default function CDRHeader() {
           </motion.div>
         </div>
 
-        {/* Global Dropdown Managers — Rendered exactly once */}
+        {/* ANZSCO Dropdown — only remaining mega menu */}
         <div onMouseEnter={() => activeDropdown && showDropdown(activeDropdown)} onMouseLeave={scheduleHide}>
-          <ServicesMegaMenu
-            isVisible={activeDropdown === "services"}
-            onMouseEnter={() => showDropdown("services")}
-            onMouseLeave={scheduleHide}
-          />
           <AnzscoMegaMenu
             isVisible={activeDropdown === "anzsco"}
             onMouseEnter={() => showDropdown("anzsco")}
             onMouseLeave={scheduleHide}
+            onItemClick={() => setActiveDropdown(null)}
           />
         </div>
       </motion.header>
 
       <MobileMenu open={menuOpen} activeSection={activeSection} onClose={closeMenu} />
-      <AgentModal isOpen={agentOpen} onClose={() => setAgentOpen(false)} />
     </>
   );
 }

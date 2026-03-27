@@ -108,12 +108,12 @@ export default function HeroSection() {
               {/* Description */}
               <motion.p
                 variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: .6, ease: [0.22,1,0.36,1] } } }}
-                className="text-white/55 leading-relaxed mb-8 max-w-lg"
+                className="text-white/55 leading-relaxed mb-8 max-w-xl"
                 style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.05rem)" }}
               >
-                Expert engineers write your CDR including 3 Career Episodes, a Summary
-                Statement &amp; a CPD aligned precisely to EA competency
-                frameworks. First attempt. Zero plagiarism.
+             Expert engineers craft your CDR - including 3 Career Episodes, Summary Statement & CPD - fully aligned with Engineers Australia standards. 
+             Designed for first-attempt approval.
+            Zero AI and plagiarism guaranteed. Also supporting ACS, VETASSESS, TRA & other skill assessments.
               </motion.p>
 
               {/* CTA buttons */}
@@ -135,15 +135,13 @@ export default function HeroSection() {
                   Get Free Consultation
                 </button>
 
-                <Link href="#services">
+                <Link href="/services">
                   <button
                     className="inline-flex items-center gap-2 font-semibold text-white/80 rounded-xl px-6 py-3.5 text-sm transition-all duration-200 hover:text-white hover:bg-white/10 active:scale-[0.98]"
                     style={{ border: "1px solid rgba(255,255,255,0.15)" }}
                   >
                     View Services
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
-                    </svg>
+                    
                   </button>
                 </Link>
               </motion.div>
@@ -201,7 +199,7 @@ export default function HeroSection() {
                     <span
                       key={i}
                       className="text-xs font-semibold tracking-widest uppercase"
-                      style={{ color: item.accent ? "#c8102e" : "rgba(255,255,255,0.3)" }}
+                      style={{ color: item.accent ? "#10b981" : "rgba(255,255,255,0.3)" }}
                     >{item.text}</span>
                   ))}
                 </div>

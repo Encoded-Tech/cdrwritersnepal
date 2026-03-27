@@ -52,6 +52,6 @@ export interface ConsultationFormData {
   name: string;
   email: string;
   phone: string;
-  engineeringField: string;
-  message: string;
+  assessmentType: string;
+  background: string;
 }

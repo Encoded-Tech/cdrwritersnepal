@@ -1,16 +1,5 @@
 // ─── Header Data Constants ────────────────────────────────────────────────────
 
-export interface ServiceItem {
-  label: string;
-  href: string;
-  tagline: string;
-  description: string;
-  icon: string;
-  badge?: string;
-  highlights: string[];
-  accentColor: string;
-}
-
 export interface AnzscoCategory {
   id: string;
   name: string;
@@ -32,105 +21,11 @@ export interface NavLink {
   id: string;
   label: string;
   href: string;
-  dropdownType?: "services" | "anzsco";
+  dropdownType?: "anzsco";
 }
 
-export type DropdownType = "services" | "anzsco" | null;
+export type DropdownType = "anzsco" | null;
 
-export const SERVICE_ITEMS: ServiceItem[] = [
-  {
-    label: "CDR Writing (Engineers Australia)",
-    href: "/services/ea",
-    tagline: "100% Approval Success",
-    description: "Professional Competency Demonstration Reports tailored to meet Engineers Australia standards.",
-    icon: "📄",
-         accentColor: "#10b981",
-    highlights: ["Engineers Australia", "100% Success"]
-  },
-   {
-    label: "VETASSESS Assessment",
-    href: "/services/vetassess",
-    tagline: "Professional Skills",
-    description: "End-to-end support for VETASSESS skill assessments across various occupations.",
-    icon: "📊",
-         accentColor: "#10b981",
-    highlights: ["Skills Assessment", "Various Occupations"]
-  },
-  
-  {
-    label: "TRA Skill Assessment",
-    href: "/services/tra",
-    tagline: "Trade Recognition",
-    description: "Guidance and documentation support for Trade Recognition Australia assessments.",
-    icon: "🛠️",
-          accentColor: "#10b981",
-    highlights: ["Trade Assessment", "Documentation"]
-  },
- 
-  {
-    label: "RPL Report Writing",
-    href: "/services/rpl",
-    tagline: "Prior Learning",
-    description: "High-quality Recognition of Prior Learning reports that clearly showcase your skills and experience.",
-    icon: "📝",
-           accentColor: "#10b981",
-    highlights: ["RPL Reports", "Showcase Skills"]
-  },
-  {
-    label: "ACS Skill Assessment",
-    href: "/services/acs",
-    tagline: "With/Without RPL",
-    description: "Complete assistance for ACS assessments, including RPL for candidates without ICT qualifications.",
-    icon: "💻",
-         accentColor: "#10b981",
-    highlights: ["ICT Assessment", "RPL Included"]
-  },
-  {
-    label: "ANMAC Skill Assessment",
-    href: "/services/anmac",
-    tagline: "Nursing & Midwifery",
-    description: "Comprehensive support for nurses and midwives seeking skill assessment with ANMAC.",
-    icon: "⚕️",
-           accentColor: "#10b981",
-    highlights: []
-  },
-  {
-    label: "AITSL Skill Assessment",
-    href: "/services/aitsl",
-    tagline: "Teaching Professionals",
-    description: "Skill assessment guidance for teachers migrating to Australia through AITSL.",
-    icon: "🏫",
-         accentColor: "#10b981",
-    highlights: []
-  },
-  {
-    label: "CPA / CA ANZ / IPA",
-    href: "/services/accounting",
-    tagline: "Accounting & Finance",
-    description: "Skill assessment support for accountants through CPA, CA ANZ, and IPA.",
-    icon: "📈",
-          accentColor: "#10b981",
-    highlights: []
-  },
-  {
-    label: "AMC Skill Assessment",
-    href: "/services/amc",
-    tagline: "Medical Practitioners",
-    description: "Guidance for medical practitioners seeking assessment through the Australian Medical Council.",
-    icon: "🩺",
-         accentColor: "#10b981",
-    highlights: []
-  },
-  {
-    label: "EOI Application Assistance",
-    href: "/services/eoi",
-    tagline: "Maximize Selection Chances",
-    description: "Expert help in submitting Expression of Interest (EOI) to maximize your chances of selection.",
-    icon: "📌",
-          accentColor: "#10b981",
-    highlights: ["Expression of Interest", "Points Strategy"]
-  },
-];
 
 export const ANZSCO_CATEGORIES: AnzscoCategory[] = [
   {
@@ -286,7 +181,7 @@ export const ALL_OCCUPATIONS: Occupation[] = [
 export const NAV_LINKS: NavLink[] = [
   { id: "Home",     label: "Home",         href: "/" },
   { id: "About",    label: "About Us",        href: "/about" },
-  { id: "services", label: "Our Services",     href: "/services",     dropdownType: "services" },
+  { id: "services", label: "Our Services",     href: "/services",   },
   { id: "anzsco",   label: "ANZSCO Codes", href: "/anzsco-codes", dropdownType: "anzsco" },
   { id: "pricing",  label: "Pricing",      href: "/pricing" },
   { id: "contact",  label: "Contact Us",      href: "/contact" },

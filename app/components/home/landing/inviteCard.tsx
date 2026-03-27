@@ -58,14 +58,14 @@ export function InviteCard({ onOpen }: InviteCardProps) {
               </svg>
             </div>
             <div>
-              <p className="font-black text-white text-sm leading-tight">Your CDR Expert Agent</p>
+              <p className="font-black text-white text-sm leading-tight">Your Skill Assessment Expert</p>
               <p className="text-[11px] text-white/40 flex items-center gap-1.5 mt-0.5">
                 <span style={{
                   width: 6, height: 6, borderRadius: "50%", background: "#22c55e",
                   boxShadow: "0 0 6px rgba(34,197,94,0.7)", flexShrink: 0, display: "inline-block",
                   animation: "bdotPulse 2s infinite",
                 }} />
-                Online - Ready to help
+                Online - CDR | ACS | VETASSESS | TRA & others
               </p>
             </div>
           </div>

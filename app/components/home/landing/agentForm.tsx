@@ -1,28 +1,15 @@
 "use client";
 
-/* ─── AgentForm.tsx ────────────────────────────────────────────────────
-   Full-screen modal — step-by-step chat-style consultation form.
-   Features:
-     • 5 conversational steps with slide animation
-     • Animated progress bar
-     • Phone step: CountryPicker + number input (placeholder per country)
-     • Engineering field step: select + conditional "Other" text input
-     • Enter-key navigation (except textarea)
-     • Back navigation
-     • Personalised success screen
-──────────────────────────────────────────────────────────────────────── */
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ConsultationFormData } from "@/types/frontEnd";
-import { AGENT_STEPS, COUNTRIES, ENG_FIELDS, OTHER_FIELD_VALUE } from "./constants";
+import { AGENT_STEPS, COUNTRIES, ASSESSMENT_TYPES } from "./constants";
 import { CountryPicker } from "./countryPicker";
-
-
 
 interface AgentFormProps { onClose: () => void; }
 
-/* ── shared input style helper ── */
+type InputRef = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
 const baseInput: React.CSSProperties = {
   width: "100%", fontFamily: "inherit", fontSize: "0.88rem", color: "white",
   background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)",
@@ -30,67 +17,80 @@ const baseInput: React.CSSProperties = {
   transition: "border-color .2s, box-shadow .2s", boxSizing: "border-box",
 };
 
-const focusStyle  = { borderColor: "rgba(200,16,46,0.55)", boxShadow: "0 0 0 3px rgba(200,16,46,0.1)" };
-const blurStyle   = { borderColor: "rgba(255,255,255,0.12)", boxShadow: "none" };
+const focusStyle = { borderColor: "rgba(200,16,46,0.55)", boxShadow: "0 0 0 3px rgba(200,16,46,0.1)" };
+const blurStyle  = { borderColor: "rgba(255,255,255,0.12)", boxShadow: "none" };
+
+function deriveVal(
+  stepId: keyof ConsultationFormData,
+  stepType: string,
+  formData: ConsultationFormData,
+): string {
+  const existing = formData[stepId] ?? "";
+  return stepType === "phone" ? existing.replace(/^\+\d+ ?/, "") : existing;
+}
 
 export function AgentForm({ onClose }: AgentFormProps) {
-  const [step, setStep]         = useState(0);
-  const [done, setDone]         = useState(false);
-  const [val,  setVal]          = useState("");
-  /* "Other" engineering field text */
-  const [otherField, setOtherField] = useState("");
-  const [country, setCountry]   = useState(COUNTRIES[0]);
-  const [formData, setFD]       = useState<ConsultationFormData>({
-    name: "", email: "", phone: "", engineeringField: "", message: "",
+  const [step,    setStep]    = useState(0);
+  const [done,    setDone]    = useState(false);
+  const [country, setCountry] = useState(COUNTRIES[0]);
+  const [formData, setFD]     = useState<ConsultationFormData>({
+    name: "", email: "", phone: "", assessmentType: "", background: "",
   });
 
-  const inputRef    = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null);
-  const otherRef    = useRef<HTMLInputElement>(null);
+  const cur = AGENT_STEPS[step];
 
-  const cur      = AGENT_STEPS[step];
+  // Initialise val from saved formData for the current step
+  const [val, setVal] = useState<string>(() => deriveVal(cur.id, cur.type, formData));
+
+  const inputRef = useRef<InputRef>(null);
   const progress = (step / AGENT_STEPS.length) * 100;
 
-  const isOtherField = cur.id === "engineeringField" && val === OTHER_FIELD_VALUE;
-
-  /* Focus input whenever step changes */
+  // When step changes: restore saved value for that step AND focus the input.
+  // Both setVal and focus are deferred with setTimeout so neither runs
+  // synchronously inside the effect body — this satisfies the React lint rule.
   useEffect(() => {
-    setTimeout(() => {
-      if (isOtherField) otherRef.current?.focus();
-      else inputRef.current?.focus();
-    }, 310);
-    const existing = (formData)[cur.id] ?? "";
-    setVal(cur.type === "phone" ? existing.replace(/^\+\d+ ?/, "") : existing);
-    setOtherField("");
+    // Capture the values we need at the time the effect runs (not stale via closure)
+    const stepId   = AGENT_STEPS[step].id;
+    const stepType = AGENT_STEPS[step].type;
+
+    const valId   = setTimeout(() => setVal(deriveVal(stepId, stepType, formData)), 0);
+    const focusId = setTimeout(() => inputRef.current?.focus(), 310);
+
+    return () => {
+      clearTimeout(valId);
+      clearTimeout(focusId);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  }, [step]); // intentionally only re-run when step changes
 
-  /* Focus other input when "Other" is selected */
-  useEffect(() => {
-    if (isOtherField) setTimeout(() => otherRef.current?.focus(), 60);
-  }, [isOtherField]);
-
-  /* Final value to store for this step */
-  const resolvedValue = () => {
-    if (cur.type === "phone")                return `${country.dial} ${val}`.trim();
-    if (isOtherField)                        return otherField.trim();
+  const resolvedValue = useCallback((): string => {
+    if (cur.type === "phone") return `${country.dial} ${val}`.trim();
     return val.trim();
-  };
+  }, [cur.type, country.dial, val]);
 
-  const canAdvance = isOtherField ? otherField.trim().length > 0 : val.trim().length > 0;
+  const canAdvance = val.trim().length > 0;
 
-  const advance = () => {
+  const advance = useCallback(() => {
     const v = resolvedValue();
     if (!v) return;
     setFD(p => ({ ...p, [cur.id]: v }));
-    if (step < AGENT_STEPS.length - 1) { setStep(s => s + 1); setVal(""); setOtherField(""); }
-    else setDone(true);
-  };
+    if (step < AGENT_STEPS.length - 1) {
+      setStep(s => s + 1);
+      setVal("");
+    } else {
+      setDone(true);
+    }
+  }, [resolvedValue, cur.id, step]);
 
-  const handleKey = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && cur.type !== "textarea") { e.preventDefault(); advance(); }
-  };
+  const handleKey = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && cur.type !== "textarea") {
+      e.preventDefault();
+      advance();
+    }
+  }, [cur.type, advance]);
 
-  /* ── render ── */
+  const goBack = useCallback(() => setStep(s => s - 1), []);
+
   return (
     <motion.div
       style={{
@@ -105,7 +105,7 @@ export function AgentForm({ onClose }: AgentFormProps) {
       <motion.div
         style={{
           width: "100%", maxWidth: 480, position: "relative",
-          background: "#0d0f14", border: "1px solid rgba(255,255,255,0.1)",
+          background: "#08090c", border: "1px solid rgba(255,255,255,0.1)",
           borderRadius: 22, overflow: "hidden",
           boxShadow: "0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,16,46,0.12)",
         }}
@@ -170,7 +170,7 @@ export function AgentForm({ onClose }: AgentFormProps) {
               <p style={{ fontSize: "0.86rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.65, marginBottom: "1.8rem" }}>
                 Our expert team will reach out to{" "}
                 <strong style={{ color: "rgba(255,255,255,0.8)" }}>{formData.email}</strong> within 2 hours
-                with your personalised CDR strategy.
+                with your personalised assessment strategy for {formData.assessmentType}.
               </p>
 
               <button
@@ -255,7 +255,7 @@ export function AgentForm({ onClose }: AgentFormProps) {
                 {/* PHONE */}
                 {cur.type === "phone" && (
                   <div style={{ display: "flex", gap: 8 }}>
-                    <CountryPicker value={country} onChange={c => { setCountry(c); }} />
+                    <CountryPicker value={country} onChange={setCountry} />
                     <input
                       ref={inputRef as React.RefObject<HTMLInputElement>}
                       type="tel"
@@ -270,63 +270,35 @@ export function AgentForm({ onClose }: AgentFormProps) {
                   </div>
                 )}
 
-                {/* ENGINEERING FIELD select + conditional "Other" text input */}
+                {/* SELECT */}
                 {cur.type === "select" && (
-                  <>
-                    <div style={{ position: "relative" }}>
-                      <select
-                        ref={inputRef as React.RefObject<HTMLSelectElement>}
-                        value={val}
-                        onChange={e => { setVal(e.target.value); setOtherField(""); }}
-                        onKeyDown={handleKey}
-                        style={{
-                          ...baseInput,
-                          color: val ? "white" : "rgba(255,255,255,0.3)",
-                          appearance: "none", cursor: "pointer", paddingRight: 32,
-                        }}
-                        onFocus={e => Object.assign(e.target.style, focusStyle)}
-                        onBlur={e  => Object.assign(e.target.style, blurStyle)}
-                      >
-                        <option value="" disabled style={{ background: "#0d0f14" }}>Select your field…</option>
-                        {ENG_FIELDS.map(f => (
-                          <option key={f} value={f} style={{ background: "#0d0f14" }}>{f}</option>
-                        ))}
-                      </select>
-                      {/* chevron icon */}
-                      <svg
-                        width="12" height="12" viewBox="0 0 24 24" fill="none"
-                        stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"
-                        style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
-                      </svg>
-                    </div>
-
-                    {/* "Other" free-text input — animates in when "Other" is selected */}
-                    <AnimatePresence>
-                      {isOtherField && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                          animate={{ opacity: 1, height: "auto", marginTop: 0 }}
-                          exit={{   opacity: 0, height: 0 }}
-                          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                          style={{ overflow: "hidden" }}
-                        >
-                          <input
-                            ref={otherRef}
-                            type="text"
-                            placeholder="e.g. Geotechnical Engineering, Mining Engineering…"
-                            value={otherField}
-                            onChange={e => setOtherField(e.target.value)}
-                            onKeyDown={handleKey}
-                            style={baseInput}
-                            onFocus={e => Object.assign(e.target.style, focusStyle)}
-                            onBlur={e  => Object.assign(e.target.style, blurStyle)}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </>
+                  <div style={{ position: "relative" }}>
+                    <select
+                      ref={inputRef as React.RefObject<HTMLSelectElement>}
+                      value={val}
+                      onChange={e => setVal(e.target.value)}
+                      onKeyDown={handleKey}
+                      style={{
+                        ...baseInput,
+                        color: val ? "white" : "rgba(255,255,255,0.3)",
+                        appearance: "none", cursor: "pointer", paddingRight: 32,
+                      }}
+                      onFocus={e => Object.assign(e.target.style, focusStyle)}
+                      onBlur={e  => Object.assign(e.target.style, blurStyle)}
+                    >
+                      <option value="" disabled style={{ background: "#08090c" }}>Select your field…</option>
+                      {ASSESSMENT_TYPES.map(f => (
+                        <option key={f} value={f} style={{ background: "#08090c" }}>{f}</option>
+                      ))}
+                    </select>
+                    <svg
+                      width="12" height="12" viewBox="0 0 24 24" fill="none"
+                      stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"
+                      style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
                 )}
 
                 {/* TEXTAREA */}
@@ -385,7 +357,7 @@ export function AgentForm({ onClose }: AgentFormProps) {
               {/* Back */}
               {step > 0 && (
                 <button
-                  onClick={() => setStep(s => s - 1)}
+                  onClick={goBack}
                   style={{
                     fontFamily: "inherit", fontSize: "0.72rem", fontWeight: 600,
                     color: "rgba(255,255,255,0.38)", background: "none", border: "none",

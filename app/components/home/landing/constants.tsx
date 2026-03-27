@@ -27,11 +27,13 @@ export const COUNTRIES = [
 export type Country = (typeof COUNTRIES)[number];
 
 export const PHRASES = [
-  "Career Episodes That Impress",
-  "Summary Statements That Win",
-  "First-Attempt EA Approval",
+  "CDR Writing for Engineers Australia",
+  "ACS (RPL & Non-RPL) Assistance",
+  "VETASSESS | TRA | AMC Support",
+  "ANMAC | AITSL | CPA / CA ANZ support",
+  "Complete Skill Assessment Solutions",
+  
 ];
-
 export const ENG_FIELDS = [
   "Civil Engineering",
   "Electrical Engineering",
@@ -45,12 +47,37 @@ export const ENG_FIELDS = [
 export const OTHER_FIELD_VALUE = "Other Engineering Field";
 
 export const AGENT_STEPS = [
-  { id: "name",             label: "What's your full name?",               type: "text",     ph: "e.g. Rajesh Sharma"                             },
-  { id: "email",            label: "Your best email address?",             type: "email",    ph: "you@example.com"                                 },
-  { id: "phone",            label: "A phone number we can reach you on?",  type: "phone",    ph: ""                                               },
-  { id: "engineeringField", label: "Which engineering field are you in?",  type: "select",   ph: ""                                               },
-  { id: "message",          label: "Tell me about your background.",        type: "textarea", ph: "Years of experience, current role, discipline…" },
+  { id: "name", label: "What's your full name?", type: "text", ph: "e.g. Jon Snow" },
+
+  { id: "email", label: "Your best email address?", type: "email", ph: "you@example.com" },
+
+  { id: "phone", label: "A phone number we can reach you on?", type: "phone", ph: "" },
+
+  {
+    id: "assessmentType",
+    label: "Which skill assessment are you applying for?",
+    type: "select",
+    ph: ""
+  },
+
+  {
+    id: "background",
+    label: "Tell us about your background (education, experience, etc.)",
+    type: "textarea",
+    ph: "Your degree, work experience, target country..."
+  },
 ] as const;
+
+export const ASSESSMENT_TYPES = [
+  "CDR (Engineers Australia)",
+  "ACS (IT Professionals)",
+  "VETASSESS",
+  "TRA (Trades)",
+  "ANMAC (Nursing)",
+  "AITSL (Teaching)",
+  "CPA / CA ANZ",
+  "Not Sure / Need Guidance",
+];
 
 export type AgentStep = (typeof AGENT_STEPS)[number];
 
@@ -73,21 +100,25 @@ export const SHOOTING_STARS = [
 ];
 
 export const TRUST_BADGES = [
-  { icon: "✓", label: "EA-Guided Reports"      },
-  { icon: "✓", label: "Zero Plagiarism"        },
-  { icon: "✓", label: "Expert Engineers"       },
-  { icon: "✓", label: "First-Attempt Approval" },
+  { icon: "✓", label: "CDR Specialists (EA)" },
+  { icon: "✓", label: "ACS(with/without RPL) | VETASSESS | TRA" },
+  { icon: "✓", label: "ANMAC | AMC | AITSL | CPA / CA ANZ" },
+  { icon: "✓", label: "EOI Application Assistance" },
 ];
 
 export const MARQUEE_ITEMS = [
-  { text: "✦ CDR Writing",             accent: true  },
-  { text: "✦ Career Episodes",         accent: false },
-  { text: "✦ Summary Statement",       accent: false },
-  { text: "✦ CPD Reports",             accent: false },
-  { text: "✦ EA Compliance",           accent: true  },
-  { text: "✦ Skilled Migration",       accent: false },
-  { text: "✦ Zero Plagiarism",         accent: false },
-  { text: "✦ First-Attempt Approval",  accent: false },
-  { text: "✦ 100% Success Rate",       accent: true  },
-  { text: "✦ Dedicated Engineers",     accent: false },
+  { text: "✦ CDR Writing (Engineers Australia)", accent: true },
+
+
+
+  { text: "✦ ACS (RPL / Non-RPL)", accent: true },
+  { text: "✦ VETASSESS | TRA Assessments", accent: true },
+  { text: "✦ ANMAC | AITSL | CPA Support", accent: true },
+
+  { text: "✦ Skilled Migration Assistance", accent: true },
+  { text: "✦ EOI Application Support", accent: true },
+
+  { text: "✦ Zero Plagiarism", accent: true },
+  { text: "✦ First-Attempt Approval", accent: true },
+  { text: "✦ 100% Success Rate From EA", accent: true },
 ];
